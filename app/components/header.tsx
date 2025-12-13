@@ -7,7 +7,7 @@ interface FlashcardHeaderProps {
   flashcardsCount: number
 }
 
-export function FlashcardHeader({ onStartStudy, flashcardsCount }: FlashcardHeaderProps) {
+export default function FlashcardHeader({ onStartStudy, flashcardsCount }: FlashcardHeaderProps) {
   return (
     <header className="bg-white shadow-sm sticky top-0 z-10">
       <div className="max-w-4xl mx-auto px-4 py-4 flex justify-between items-center">
