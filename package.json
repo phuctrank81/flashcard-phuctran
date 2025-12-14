@@ -20,11 +20,14 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "animate": "^1.0.0",
     "baseline-browser-mapping": "^2.9.6",
+    "css": "^3.0.0",
     "eslint": "^9",
     "eslint-config-next": "16.0.5",
     "prisma": "^6.19.0",
     "tailwindcss": "^4.1.18",
+    "tw": "^0.1.2",
     "typescript": "^5"
   }
 }
