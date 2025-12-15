@@ -1,10 +1,24 @@
 "use client"
 
 import type React from "react"
-import { useState, useEffect } from "react"
-import { Plus, Trash2, ArrowLeft, ArrowRight, RotateCcw, X, Save } from "lucide-react"
+import { useState, useEffect, useCallback } from "react"
+import {
+  Plus,
+  Trash2,
+  ArrowLeft,
+  ArrowRight,
+  RotateCcw,
+  X,
+  Save,
+  ChevronLeft,
+  ChevronRight,
+  GraduationCap,
+  Lightbulb,
+  Trophy,
+} from "lucide-react"
 import FlashcardHeader from "./components/header"
 
+// --- TYPES ---
 interface Flashcard {
   id: string
   question: string
@@ -22,6 +36,105 @@ const INITIAL_DATA: Flashcard[] = [
   { id: "7", question: "Paradigm", answer: "Khuôn mẫu, mô hình (n)" },
 ]
 
+// --- COMPONENTS ---
+
+
+const SLIDES = [
+  {
+    id: 1,
+    title: "Chinh Phục IELTS 8.0+",
+    desc: "Phương pháp học từ vựng hiệu quả giúp bạn nhớ lâu và áp dụng ngay vào bài thi.",
+    icon: <Trophy className="w-12 h-12 text-yellow-400" />,
+    color: "bg-indigo-900",
+  },
+  {
+    id: 2,
+    title: "Mẹo Speaking Tự Nhiên",
+    desc: "Đừng cố học thuộc lòng. Hãy luyện tập phản xạ và sử dụng Collocations đắt giá.",
+    icon: <Lightbulb className="w-12 h-12 text-indigo-400" />,
+    color: "bg-slate-800",
+  },
+  {
+    id: 3,
+    title: "Lộ Trình Học Cá Nhân",
+    desc: "Theo dõi tiến độ hàng ngày và ôn tập lại những từ khó nhớ nhất của bạn.",
+    icon: <GraduationCap className="w-12 h-12 text-emerald-400" />,
+    color: "bg-violet-900",
+  },
+]
+
+const BannerSlider = () => {
+  const [current, setCurrent] = useState(0)
+
+  const nextSlide = useCallback(() => {
+    setCurrent((prev) => (prev + 1) % SLIDES.length)
+  }, [])
+
+  const prevSlide = () => {
+    setCurrent((prev) => (prev - 1 + SLIDES.length) % SLIDES.length)
+  }
+
+  useEffect(() => {
+    const timer = setInterval(nextSlide, 6000)
+    return () => clearInterval(timer)
+  }, [nextSlide])
+
+  return (
+    <div className="relative w-full overflow-hidden bg-slate-900 text-white mb-8 shadow-lg">
+      <div
+        className="flex transition-transform duration-700 ease-in-out"
+        style={{ transform: `translateX(-${current * 100}%)` }}
+      >
+        {SLIDES.map((slide) => (
+          <div
+            key={slide.id}
+            className={`w-full flex-shrink-0 ${slide.color} h-64 md:h-72 flex items-center justify-center`}
+          >
+            <div className="max-w-4xl mx-auto px-6 md:px-12 flex items-center gap-8 w-full">
+              <div className="hidden md:flex flex-shrink-0 bg-white/10 p-6 rounded-full backdrop-blur-sm">
+                {slide.icon}
+              </div>
+              <div>
+                <span className="inline-block px-3 py-1 bg-white/20 rounded-full text-xs font-bold uppercase tracking-wider mb-3 backdrop-blur-md">
+                  Featured Tip
+                </span>
+                <h2 className="text-2xl md:text-4xl font-bold mb-3 leading-tight">{slide.title}</h2>
+                <p className="text-slate-300 text-sm md:text-lg max-w-xl leading-relaxed">{slide.desc}</p>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <button
+        onClick={prevSlide}
+        className="absolute left-4 top-1/2 -translate-y-1/2 p-2 rounded-full bg-white/10 hover:bg-white/20 backdrop-blur-sm transition-colors"
+      >
+        <ChevronLeft className="w-6 h-6" />
+      </button>
+      <button
+        onClick={nextSlide}
+        className="absolute right-4 top-1/2 -translate-y-1/2 p-2 rounded-full bg-white/10 hover:bg-white/20 backdrop-blur-sm transition-colors"
+      >
+        <ChevronRight className="w-6 h-6" />
+      </button>
+
+      <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
+        {SLIDES.map((_, idx) => (
+          <button
+            key={idx}
+            onClick={() => setCurrent(idx)}
+            className={`w-2 h-2 rounded-full transition-all ${
+              current === idx ? "bg-white w-6" : "bg-white/40 hover:bg-white/60"
+            }`}
+          />
+        ))}
+      </div>
+    </div>
+  )
+}
+
+// --- MAIN APP COMPONENT ---
 export default function App() {
   const [flashcards, setFlashcards] = useState<Flashcard[]>([])
   const [isStudyMode, setIsStudyMode] = useState(false)
@@ -58,7 +171,9 @@ export default function App() {
 
   const deleteCard = (id: string) => {
     if (confirm("Bạn có chắc muốn xóa thẻ này không?")) {
-      setFlashcards(flashcards.filter((card) => card.id !== id))
+      const newCards = flashcards.filter((card) => card.id !== id)
+      setFlashcards(newCards)
+      localStorage.setItem("my-flashcards", JSON.stringify(newCards))
     }
   }
 
@@ -70,18 +185,23 @@ export default function App() {
     <div className="min-h-screen bg-slate-50 text-slate-900 font-sans">
       <FlashcardHeader onStartStudy={() => setIsStudyMode(true)} flashcardsCount={flashcards.length} />
 
-      <main className="max-w-4xl mx-auto px-4 py-8">
+      <BannerSlider />
+
+      <main className="max-w-4xl mx-auto px-4 pb-12">
         <div className="flex justify-between items-end mb-6">
           <div>
-            <h2 className="text-xl font-semibold text-slate-800">Danh sách từ vựng của bạn</h2>
-            <p className="text-slate-500 mt-1">Bạn đang có {flashcards.length} thẻ từ vựng</p>
+            <h2 className="text-xl font-bold text-slate-800 flex items-center gap-2">
+              Bộ sưu tập của bạn
+              <span className="bg-slate-200 text-slate-600 text-xs px-2 py-1 rounded-full">{flashcards.length}</span>
+            </h2>
+            <p className="text-slate-500 text-sm mt-1">Quản lý và ôn tập các từ vựng đã lưu.</p>
           </div>
           <button
             onClick={() => setShowAddModal(true)}
             className="flex items-center gap-2 bg-white border border-slate-200 hover:border-indigo-300 hover:text-indigo-600 text-slate-700 px-4 py-2 rounded-lg font-medium transition-colors shadow-sm"
           >
             <Plus className="w-5 h-5" />
-            Thêm từ mới
+            <span className="hidden sm:inline">Thêm từ mới</span>
           </button>
         </div>
 
@@ -103,14 +223,15 @@ export default function App() {
             {flashcards.map((card) => (
               <div
                 key={card.id}
-                className="group bg-white p-5 rounded-xl border border-slate-200 shadow-sm hover:shadow-md transition-all hover:border-indigo-200 flex flex-col justify-between h-48"
+                className="group bg-white p-5 rounded-xl border border-slate-200 shadow-sm hover:shadow-md transition-all hover:border-indigo-200 flex flex-col justify-between h-48 relative overflow-hidden"
               >
+                <div className="absolute top-0 left-0 w-1 h-full bg-indigo-500 opacity-0 group-hover:opacity-100 transition-opacity"></div>
                 <div>
-                  <h3 className="font-medium text-lg text-slate-800 line-clamp-2 mb-2">{card.question}</h3>
-                  <div className="w-10 h-1 bg-indigo-100 rounded-full mb-3"></div>
+                  <h3 className="font-bold text-lg text-slate-800 line-clamp-2 mb-2">{card.question}</h3>
+                  <div className="w-8 h-1 bg-indigo-100 rounded-full mb-3 group-hover:w-12 group-hover:bg-indigo-400 transition-all"></div>
                   <p className="text-slate-500 text-sm line-clamp-3">{card.answer}</p>
                 </div>
-                <div className="flex justify-end mt-4 opacity-0 group-hover:opacity-100 transition-opacity">
+                <div className="flex justify-end mt-4 opacity-0 group-hover:opacity-100 transition-opacity translate-y-2 group-hover:translate-y-0 duration-300">
                   <button
                     onClick={() => deleteCard(card.id)}
                     className="p-2 text-red-400 hover:text-red-600 hover:bg-red-50 rounded-full transition-colors"
