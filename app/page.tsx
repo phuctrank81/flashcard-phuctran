@@ -10,13 +10,12 @@ import {
   RotateCcw,
   X,
   Save,
-  ChevronLeft,
-  ChevronRight,
   GraduationCap,
   Lightbulb,
   Trophy,
 } from "lucide-react"
 import FlashcardHeader from "./components/header"
+import BannerSlider from "./components/BannerSlider"
 
 // --- TYPES ---
 interface Flashcard {
