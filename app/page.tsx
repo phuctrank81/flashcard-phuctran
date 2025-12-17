@@ -1,368 +1,165 @@
 "use client"
 
-import type React from "react"
-import { useState, useEffect, useCallback } from "react"
-import {
-  Plus,
-  Trash2,
-  ArrowLeft,
-  ArrowRight,
-  RotateCcw,
-  X,
-  Save,
-  GraduationCap,
-  Lightbulb,
-  Trophy,
-} from "lucide-react"
-import FlashcardHeader from "./components/header"
+import { BookOpen, GraduationCap, Zap, Trophy, Brain, Target } from "lucide-react"
+import Link from "next/link"
 import BannerSlider from "./components/BannerSlider"
 
-// --- TYPES ---
-interface Flashcard {
-  id: string
-  question: string
-  answer: string
-  category?: string
-}
-
-const INITIAL_DATA: Flashcard[] = [
-  { id: "1", question: "Acquire", answer: "Đạt được, giành được (v)" },
-  { id: "2", question: "Consequence", answer: "Hậu quả, kết quả (n)" },
-  { id: "3", question: "Determine", answer: "Xác định, quyết định (v)" },
-  { id: "4", question: "Pervasive", answer: "Lan tỏa, phổ biến khắp mọi nơi (adj)" },
-  { id: "5", question: "Mitigate", answer: "Giảm nhẹ, làm dịu bớt (v)" },
-  { id: "6", question: "Conducive", answer: "Có lợi, dẫn đến (adj)" },
-  { id: "7", question: "Paradigm", answer: "Khuôn mẫu, mô hình (n)" },
-]
-
-
-
-// --- MAIN APP COMPONENT ---
-export default function App() {
-  const [flashcards, setFlashcards] = useState<Flashcard[]>([])
-  const [isStudyMode, setIsStudyMode] = useState(false)
-  const [showAddModal, setShowAddModal] = useState(false)
-
-  useEffect(() => {
-    const saved = localStorage.getItem("my-flashcards")
-    if (saved) {
-      try {
-        setFlashcards(JSON.parse(saved))
-      } catch (e) {
-        setFlashcards(INITIAL_DATA)
-      }
-    } else {
-      setFlashcards(INITIAL_DATA)
-    }
-  }, [])
-
-  useEffect(() => {
-    if (flashcards.length > 0) {
-      localStorage.setItem("my-flashcards", JSON.stringify(flashcards))
-    }
-  }, [flashcards])
-
-  const addCard = (question: string, answer: string) => {
-    const newCard: Flashcard = {
-      id: Date.now().toString(),
-      question,
-      answer,
-    }
-    setFlashcards([...flashcards, newCard])
-    setShowAddModal(false)
-  }
-
-  const deleteCard = (id: string) => {
-    if (confirm("Bạn có chắc muốn xóa thẻ này không?")) {
-      const newCards = flashcards.filter((card) => card.id !== id)
-      setFlashcards(newCards)
-      localStorage.setItem("my-flashcards", JSON.stringify(newCards))
-    }
-  }
-
-  if (isStudyMode) {
-    return <StudyMode cards={flashcards} onExit={() => setIsStudyMode(false)} />
-  }
-
+export default function HomePage() {
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 font-sans">
-      <FlashcardHeader onStartStudy={() => setIsStudyMode(true)} flashcardsCount={flashcards.length} />
+    <div className="min-h-screen bg-slate-50 flex flex-col">
+      {/* Header */}
+      <header className="bg-white border-b border-slate-200 sticky top-0 z-40 shadow-sm">
+        <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
+          <Link href="/" className="flex items-center gap-2 text-indigo-600">
+            <div className="bg-indigo-600 text-white p-1.5 rounded-lg">
+              <BookOpen className="w-5 h-5" />
+            </div>
+            <span className="text-xl font-bold tracking-tight">IELTS Master</span>
+          </Link>
 
+          <nav className="flex items-center gap-6">
+            <Link
+              href="/flashcards"
+              className="bg-indigo-600 text-white px-5 py-2 rounded-full text-sm font-semibold hover:bg-indigo-700 transition-all shadow-md shadow-indigo-200 active:scale-95"
+            >
+              Flashcards
+            </Link>
+            <Link href="/quiz" className="text-slate-600 hover:text-indigo-600 font-medium transition-colors text-sm">
+              Quiz Game
+            </Link>
+          </nav>
+        </div>
+      </header>
+
+      {/* Banner Slider */}
       <BannerSlider />
 
-      <main className="max-w-4xl mx-auto px-4 pb-12">
-        <div className="flex justify-between items-end mb-6">
-          <div>
-            <h2 className="text-xl font-bold text-slate-800 flex items-center gap-2">
-              Bộ sưu tập của bạn
-              <span className="bg-slate-200 text-slate-600 text-xs px-2 py-1 rounded-full">{flashcards.length}</span>
-            </h2>
-            <p className="text-slate-500 text-sm mt-1">Quản lý và ôn tập các từ vựng đã lưu.</p>
-          </div>
-          <button
-            onClick={() => setShowAddModal(true)}
-            className="flex items-center gap-2 bg-white border border-slate-200 hover:border-indigo-300 hover:text-indigo-600 text-slate-700 px-4 py-2 rounded-lg font-medium transition-colors shadow-sm"
-          >
-            <Plus className="w-5 h-5" />
-            <span className="hidden sm:inline">Thêm từ mới</span>
-          </button>
-        </div>
-
-        {flashcards.length === 0 ? (
-          <div className="text-center py-20 bg-white rounded-2xl border-2 border-dashed border-slate-200">
-            <div className="w-16 h-16 bg-indigo-50 text-indigo-500 rounded-full flex items-center justify-center mx-auto mb-4">
-              <Plus className="w-8 h-8" />
+      {/* Hero Section */}
+      <main className="flex-1">
+        <section className="max-w-6xl mx-auto px-4 py-16 text-center">
+          <div className="mb-8">
+            <div className="inline-block bg-indigo-100 text-indigo-700 px-4 py-1 rounded-full text-sm font-semibold mb-6">
+              ✨ Học từ vựng IELTS hiệu quả
             </div>
-            <h3 className="text-lg font-medium text-slate-900">Chưa có từ vựng nào</h3>
-            <p className="text-slate-500 mt-2 max-w-sm mx-auto">
-              Hãy tạo thẻ từ vựng đầu tiên để bắt đầu học Tiếng Anh.
+            <h1 className="text-5xl md:text-6xl font-bold text-slate-900 mb-6 text-balance">
+              Chinh phục IELTS với
+              <span className="text-indigo-600"> Flashcard & Quiz</span>
+            </h1>
+            <p className="text-xl text-slate-600 max-w-2xl mx-auto mb-8 text-pretty">
+              Phương pháp học từ vựng thông minh, giúp bạn ghi nhớ lâu dài và đạt điểm cao trong kỳ thi IELTS.
             </p>
-            <button onClick={() => setShowAddModal(true)} className="mt-6 text-indigo-600 font-medium hover:underline">
-              Tạo thẻ ngay
-            </button>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {flashcards.map((card) => (
-              <div
-                key={card.id}
-                className="group bg-white p-5 rounded-xl border border-slate-200 shadow-sm hover:shadow-md transition-all hover:border-indigo-200 flex flex-col justify-between h-48 relative overflow-hidden"
+            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+              <Link
+                href="/flashcards"
+                className="bg-indigo-600 text-white px-8 py-4 rounded-full text-lg font-semibold hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-200 active:scale-95 inline-flex items-center gap-2"
               >
-                <div className="absolute top-0 left-0 w-1 h-full bg-indigo-500 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                <div>
-                  <h3 className="font-bold text-lg text-slate-800 line-clamp-2 mb-2">{card.question}</h3>
-                  <div className="w-8 h-1 bg-indigo-100 rounded-full mb-3 group-hover:w-12 group-hover:bg-indigo-400 transition-all"></div>
-                  <p className="text-slate-500 text-sm line-clamp-3">{card.answer}</p>
-                </div>
-                <div className="flex justify-end mt-4 opacity-0 group-hover:opacity-100 transition-opacity translate-y-2 group-hover:translate-y-0 duration-300">
-                  <button
-                    onClick={() => deleteCard(card.id)}
-                    className="p-2 text-red-400 hover:text-red-600 hover:bg-red-50 rounded-full transition-colors"
-                    title="Xóa thẻ"
-                  >
-                    <Trash2 className="w-5 h-5" />
-                  </button>
-                </div>
-              </div>
-            ))}
+                <Zap className="w-5 h-5" />
+                Bắt đầu học ngay
+              </Link>
+              <Link
+                href="/quiz"
+                className="bg-white text-indigo-600 px-8 py-4 rounded-full text-lg font-semibold border-2 border-indigo-600 hover:bg-indigo-50 transition-all inline-flex items-center gap-2"
+              >
+                <Trophy className="w-5 h-5" />
+                Làm Quiz
+              </Link>
+            </div>
           </div>
-        )}
+        </section>
+
+        {/* Features Section */}
+        <section className="max-w-6xl mx-auto px-4 py-16">
+          <h2 className="text-3xl font-bold text-center text-slate-900 mb-12">Tính năng nổi bật</h2>
+          <div className="grid md:grid-cols-3 gap-8">
+            <div className="bg-white rounded-2xl p-8 border border-slate-200 hover:shadow-lg transition-shadow">
+              <div className="w-14 h-14 bg-blue-100 rounded-xl flex items-center justify-center mb-4">
+                <BookOpen className="w-7 h-7 text-blue-600" />
+              </div>
+              <h3 className="text-xl font-bold text-slate-900 mb-3">Flashcards thông minh</h3>
+              <p className="text-slate-600">
+                Học từ vựng với hệ thống flashcard hiệu quả, hỗ trợ ghi nhớ lâu dài qua phương pháp lặp lại ngắt quãng.
+              </p>
+            </div>
+
+            <div className="bg-white rounded-2xl p-8 border border-slate-200 hover:shadow-lg transition-shadow">
+              <div className="w-14 h-14 bg-purple-100 rounded-xl flex items-center justify-center mb-4">
+                <Brain className="w-7 h-7 text-purple-600" />
+              </div>
+              <h3 className="text-xl font-bold text-slate-900 mb-3">Quiz đa dạng</h3>
+              <p className="text-slate-600">
+                Kiểm tra kiến thức với các bài quiz trắc nghiệm, theo dõi tiến độ và xác định điểm yếu cần cải thiện.
+              </p>
+            </div>
+
+            <div className="bg-white rounded-2xl p-8 border border-slate-200 hover:shadow-lg transition-shadow">
+              <div className="w-14 h-14 bg-green-100 rounded-xl flex items-center justify-center mb-4">
+                <Target className="w-7 h-7 text-green-600" />
+              </div>
+              <h3 className="text-xl font-bold text-slate-900 mb-3">Theo dõi tiến độ</h3>
+              <p className="text-slate-600">
+                Thống kê chi tiết về quá trình học tập, giúp bạn dễ dàng theo dõi và điều chỉnh kế hoạch học.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        {/* Stats Section */}
+        <section className="bg-indigo-600 py-16">
+          <div className="max-w-6xl mx-auto px-4">
+            <div className="grid md:grid-cols-3 gap-8 text-center text-white">
+              <div>
+                <div className="text-4xl font-bold mb-2">500+</div>
+                <div className="text-indigo-200">Từ vựng Academic</div>
+              </div>
+              <div>
+                <div className="text-4xl font-bold mb-2">1000+</div>
+                <div className="text-indigo-200">Người dùng</div>
+              </div>
+              <div>
+                <div className="text-4xl font-bold mb-2">7.5+</div>
+                <div className="text-indigo-200">Điểm IELTS trung bình</div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* CTA Section */}
+        <section className="max-w-4xl mx-auto px-4 py-16 text-center">
+          <div className="bg-gradient-to-br from-indigo-50 to-purple-50 rounded-3xl p-12 border border-indigo-100">
+            <GraduationCap className="w-16 h-16 text-indigo-600 mx-auto mb-6" />
+            <h2 className="text-3xl font-bold text-slate-900 mb-4">Sẵn sàng chinh phục IELTS?</h2>
+            <p className="text-lg text-slate-600 mb-8 max-w-2xl mx-auto">
+              Bắt đầu hành trình học từ vựng hiệu quả ngay hôm nay với IELTS Master.
+            </p>
+            <Link
+              href="/flashcards"
+              className="bg-indigo-600 text-white px-8 py-4 rounded-full text-lg font-semibold hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-200 active:scale-95 inline-flex items-center gap-2"
+            >
+              Học ngay miễn phí
+            </Link>
+          </div>
+        </section>
       </main>
 
-      {showAddModal && <AddCardModal onClose={() => setShowAddModal(false)} onAdd={addCard} />}
-    </div>
-  )
-}
-
-function StudyMode({ cards, onExit }: { cards: Flashcard[]; onExit: () => void }) {
-  const [currentIndex, setCurrentIndex] = useState(0)
-  const [isFlipped, setIsFlipped] = useState(false)
-  const [direction, setDirection] = useState(0)
-
-  const currentCard = cards[currentIndex]
-
-  const handleNext = () => {
-    if (currentIndex < cards.length - 1) {
-      setIsFlipped(false)
-      setDirection(1)
-      setTimeout(() => {
-        setCurrentIndex((prev) => prev + 1)
-        setDirection(0)
-      }, 300)
-    }
-  }
-
-  const handlePrev = () => {
-    if (currentIndex > 0) {
-      setIsFlipped(false)
-      setDirection(-1)
-      setTimeout(() => {
-        setCurrentIndex((prev) => prev - 1)
-        setDirection(0)
-      }, 300)
-    }
-  }
-
-  const handleFlip = () => {
-    setIsFlipped(!isFlipped)
-  }
-
-  const handleRestart = () => {
-    setCurrentIndex(0)
-    setIsFlipped(false)
-  }
-
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "ArrowRight" || e.key === " ") handleNext()
-      if (e.key === "ArrowLeft") handlePrev()
-      if (e.key === "Enter" || e.key === "ArrowUp" || e.key === "ArrowDown") handleFlip()
-      if (e.key === "Escape") onExit()
-    }
-    window.addEventListener("keydown", handleKeyDown)
-    return () => window.removeEventListener("keydown", handleKeyDown)
-  }, [currentIndex])
-
-  const progress = ((currentIndex + 1) / cards.length) * 100
-
-  return (
-    <div className="fixed inset-0 bg-slate-900 z-50 flex flex-col items-center justify-center text-white">
-      <div className="absolute top-0 left-0 right-0 p-4 flex justify-between items-center bg-gradient-to-b from-slate-900/80 to-transparent">
-        <button
-          onClick={onExit}
-          className="p-2 bg-white/10 hover:bg-white/20 rounded-full backdrop-blur-sm transition-colors"
-        >
-          <X className="w-6 h-6" />
-        </button>
-        <div className="text-sm font-medium bg-black/30 px-3 py-1 rounded-full backdrop-blur-md">
-          {currentIndex + 1} / {cards.length}
-        </div>
-      </div>
-
-      <div
-        className="absolute top-0 left-0 h-1 bg-indigo-500 transition-all duration-300"
-        style={{ width: `${progress}%` }}
-      ></div>
-
-      <div className="w-full max-w-2xl px-4 perspective-1000">
-        <div
-          className={`relative w-full aspect-[5/3] cursor-pointer transition-all duration-500 transform-style-3d ${isFlipped ? "rotate-y-180" : ""} ${direction === 1 ? "-translate-x-full opacity-0" : direction === -1 ? "translate-x-full opacity-0" : ""}`}
-          onClick={handleFlip}
-          style={{ transformStyle: "preserve-3d" }}
-        >
-          <div className="absolute inset-0 backface-hidden bg-white text-slate-900 rounded-3xl shadow-2xl flex flex-col items-center justify-center p-8 md:p-12 text-center border-b-8 border-indigo-500">
-            <span className="absolute top-6 left-6 text-xs font-bold tracking-wider text-indigo-500 uppercase">
-              Từ vựng
-            </span>
-            <div className="text-2xl md:text-4xl font-semibold leading-relaxed">{currentCard.question}</div>
-            <div className="absolute bottom-6 text-slate-400 text-sm flex items-center gap-2">
-              <span className="animate-pulse">👆 Chạm để lật</span>
-            </div>
-          </div>
-
-          <div className="absolute inset-0 backface-hidden rotate-y-180 bg-indigo-600 text-white rounded-3xl shadow-2xl flex flex-col items-center justify-center p-8 md:p-12 text-center border-b-8 border-indigo-800">
-            <span className="absolute top-6 left-6 text-xs font-bold tracking-wider text-indigo-200 uppercase">
-              Nghĩa Tiếng Việt
-            </span>
-            <div className="text-xl md:text-3xl font-medium leading-relaxed">{currentCard.answer}</div>
-          </div>
-        </div>
-      </div>
-
-      <div className="mt-12 flex items-center gap-8">
-        <button
-          onClick={handlePrev}
-          disabled={currentIndex === 0}
-          className="p-4 rounded-full bg-white/10 hover:bg-white/20 disabled:opacity-30 disabled:cursor-not-allowed backdrop-blur-sm transition-all active:scale-95"
-        >
-          <ArrowLeft className="w-8 h-8" />
-        </button>
-
-        {currentIndex === cards.length - 1 ? (
-          <button
-            onClick={handleRestart}
-            className="p-4 rounded-full bg-indigo-500 hover:bg-indigo-400 text-white shadow-lg shadow-indigo-500/50 transition-all active:scale-95"
-            title="Học lại"
-          >
-            <RotateCcw className="w-8 h-8" />
-          </button>
-        ) : (
-          <button
-            onClick={handleFlip}
-            className="w-20 h-20 rounded-full bg-white text-indigo-600 flex items-center justify-center font-bold text-xl shadow-xl shadow-white/10 hover:scale-105 transition-all active:scale-95"
-          >
-            {isFlipped ? "Tiếp" : "Lật"}
-          </button>
-        )}
-
-        <button
-          onClick={handleNext}
-          disabled={currentIndex === cards.length - 1}
-          className="p-4 rounded-full bg-white/10 hover:bg-white/20 disabled:opacity-30 disabled:cursor-not-allowed backdrop-blur-sm transition-all active:scale-95"
-        >
-          <ArrowRight className="w-8 h-8" />
-        </button>
-      </div>
-
-      <div className="mt-8 text-slate-400 text-sm">Sử dụng phím mũi tên hoặc Space để điều khiển</div>
-
-      <style>{`
-        .perspective-1000 { perspective: 1000px; }
-        .transform-style-3d { transform-style: preserve-3d; }
-        .backface-hidden { backface-visibility: hidden; }
-        .rotate-y-180 { transform: rotateY(180deg); }
-      `}</style>
-    </div>
-  )
-}
-
-function AddCardModal({ onClose, onAdd }: { onClose: () => void; onAdd: (q: string, a: string) => void }) {
-  const [question, setQuestion] = useState("")
-  const [answer, setAnswer] = useState("")
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    if (question.trim() && answer.trim()) {
-      onAdd(question, answer)
-      setQuestion("")
-      setAnswer("")
-    }
-  }
-
-  return (
-    <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 backdrop-blur-sm animate-fade-in">
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden">
-        <div className="bg-indigo-600 px-6 py-4 flex justify-between items-center">
-          <h3 className="text-white font-semibold text-lg">Thêm từ vựng mới</h3>
-          <button onClick={onClose} className="text-indigo-200 hover:text-white transition-colors">
-            <X className="w-6 h-6" />
-          </button>
-        </div>
-
-        <form onSubmit={handleSubmit} className="p-6">
-          <div className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">Từ vựng (Mặt trước)</label>
-              <textarea
-                value={question}
-                onChange={(e) => setQuestion(e.target.value)}
-                className="w-full px-4 py-3 rounded-lg border border-slate-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all resize-none h-24"
-                placeholder="Nhập từ vựng Tiếng Anh (ví dụ: Flexible)..."
-                autoFocus
-                required
-              />
+      {/* Footer */}
+      <footer className="bg-slate-800 text-slate-300 border-t border-slate-700">
+        <div className="max-w-6xl mx-auto px-4 py-8">
+          <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+            <div className="flex items-center gap-2">
+              <div className="bg-indigo-600 text-white p-1.5 rounded-lg">
+                <BookOpen className="w-4 h-4" />
+              </div>
+              <span className="font-bold text-white">IELTS Master</span>
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">Nghĩa (Mặt sau)</label>
-              <textarea
-                value={answer}
-                onChange={(e) => setAnswer(e.target.value)}
-                className="w-full px-4 py-3 rounded-lg border border-slate-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all resize-none h-24"
-                placeholder="Nhập nghĩa Tiếng Việt (ví dụ: Linh hoạt, điều chỉnh được)..."
-                required
-              />
+            <div className="text-sm text-center md:text-left">
+              <p>Học tiếng Anh hiệu quả mỗi ngày với phương pháp flashcard</p>
             </div>
-          </div>
 
-          <div className="mt-8 flex gap-3 justify-end">
-            <button
-              type="button"
-              onClick={onClose}
-              className="px-5 py-2.5 rounded-lg text-slate-600 font-medium hover:bg-slate-100 transition-colors"
-            >
-              Hủy bỏ
-            </button>
-            <button
-              type="submit"
-              className="px-5 py-2.5 rounded-lg bg-indigo-600 text-white font-medium hover:bg-indigo-700 shadow-lg shadow-indigo-200 transition-all transform active:scale-95 flex items-center gap-2"
-            >
-              <Save className="w-4 h-4" />
-              Lưu thẻ
-            </button>
+            <div className="text-sm text-slate-400">© 2025 IELTS Master. All rights reserved.</div>
           </div>
-        </form>
-      </div>
+        </div>
+      </footer>
     </div>
   )
 }
