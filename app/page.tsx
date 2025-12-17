@@ -35,33 +35,6 @@ const INITIAL_DATA: Flashcard[] = [
   { id: "7", question: "Paradigm", answer: "Khuôn mẫu, mô hình (n)" },
 ]
 
-// --- COMPONENTS ---
-
-
-const SLIDES = [
-  {
-    id: 1,
-    title: "Chinh Phục IELTS 8.0+",
-    desc: "Phương pháp học từ vựng hiệu quả giúp bạn nhớ lâu và áp dụng ngay vào bài thi.",
-    icon: <Trophy className="w-12 h-12 text-yellow-400" />,
-    color: "bg-indigo-900",
-  },
-  {
-    id: 2,
-    title: "Mẹo Speaking Tự Nhiên",
-    desc: "Đừng cố học thuộc lòng. Hãy luyện tập phản xạ và sử dụng Collocations đắt giá.",
-    icon: <Lightbulb className="w-12 h-12 text-indigo-400" />,
-    color: "bg-slate-800",
-  },
-  {
-    id: 3,
-    title: "Lộ Trình Học Cá Nhân",
-    desc: "Theo dõi tiến độ hàng ngày và ôn tập lại những từ khó nhớ nhất của bạn.",
-    icon: <GraduationCap className="w-12 h-12 text-emerald-400" />,
-    color: "bg-violet-900",
-  },
-]
-
 
 
 // --- MAIN APP COMPONENT ---
