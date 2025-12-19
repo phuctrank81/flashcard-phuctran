@@ -21,7 +21,7 @@ export default function Header() {
         {/* Actions */}
         <button
           onClick={handleStartStudy}
-          className="text-slate-900 hover:text-indigo-600 transition-colors font-semibold"
+          className="text-slate-900 hover:text-indigo-600 transition-colors font-semibold cursor-pointer"
         >
           Flashcards
         </button>
