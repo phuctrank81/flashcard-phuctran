@@ -3,33 +3,13 @@
 import { BookOpen, GraduationCap, Zap, Trophy, Brain, Target } from "lucide-react"
 import Link from "next/link"
 import BannerSlider from "./components/BannerSlider"
+import Header from "./components/Header"
 
 export default function HomePage() {
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col">
       {/* Header */}
-      <header className="bg-white border-b border-slate-200 sticky top-0 z-40 shadow-sm">
-        <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2 text-indigo-600">
-            <div className="bg-indigo-600 text-white p-1.5 rounded-lg">
-              <BookOpen className="w-5 h-5" />
-            </div>
-            <span className="text-xl font-bold tracking-tight">IELTS Master</span>
-          </Link>
-
-          <nav className="flex items-center gap-6">
-            <Link
-              href="/flashcards"
-              className="bg-indigo-600 text-white px-5 py-2 rounded-full text-sm font-semibold hover:bg-indigo-700 transition-all shadow-md shadow-indigo-200 active:scale-95"
-            >
-              Flashcards
-            </Link>
-            <Link href="/quiz" className="text-slate-600 hover:text-indigo-600 font-medium transition-colors text-sm">
-              Quiz Game
-            </Link>
-          </nav>
-        </div>
-      </header>
+      <Header />
 
       {/* Banner Slider */}
       <BannerSlider />
