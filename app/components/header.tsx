@@ -1,9 +1,7 @@
 import { BookOpen } from "lucide-react"
+import Link from "next/link"
 
 export default function Header() {
-  const handleStartStudy = () => {
-    console.log("Start study")
-  }
 
   return (
     <header className="bg-white border-b border-slate-200 sticky top-0 z-40 shadow-sm">
@@ -20,10 +18,9 @@ export default function Header() {
 
         {/* Actions */}
         <button
-          onClick={handleStartStudy}
           className="text-slate-900 hover:text-indigo-600 transition-colors font-semibold cursor-pointer"
         >
-          Flashcards
+          <Link href="flashcards">Flashcards</Link>
         </button>
       </div>
     </header>
