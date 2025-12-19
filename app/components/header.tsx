@@ -1,8 +1,6 @@
 import { BookOpen } from "lucide-react"
 
 export default function Header() {
-  const flashcardsCount = 0 // hoặc lấy từ state / context sau này
-
   const handleStartStudy = () => {
     console.log("Start study")
   }
@@ -21,26 +19,12 @@ export default function Header() {
         </div>
 
         {/* Actions */}
-        <div className="flex items-center gap-4">
-          <span className="text-slate-500 text-sm hidden sm:inline-block font-medium">
-            {flashcardsCount} thẻ từ
-          </span>
-
-          <button
-            onClick={handleStartStudy}
-            disabled={flashcardsCount === 0}
-            className="
-              bg-indigo-600 text-white
-              px-5 py-2 rounded-full text-sm font-semibold
-              hover:bg-indigo-700
-              disabled:opacity-50 disabled:cursor-not-allowed
-              transition-all shadow-md shadow-indigo-200
-              active:scale-95
-            "
-          >
-            Học Ngay
-          </button>
-        </div>
+        <button
+          onClick={handleStartStudy}
+          className="text-slate-900 hover:text-indigo-600 transition-colors font-semibold"
+        >
+          Flashcards
+        </button>
       </div>
     </header>
   )
