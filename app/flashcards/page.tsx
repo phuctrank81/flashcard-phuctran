@@ -1,6 +1,7 @@
 "use client"
 
 import Header from "../components/Header"
+import Footer from "../components/Footer"
 
 export default function FlashcardsPage() {
   return (
@@ -13,6 +14,7 @@ export default function FlashcardsPage() {
           {/* Nội dung trống / placeholder */}
         </div>
       </main>
+      <Footer />
     </div>
   )
 }
