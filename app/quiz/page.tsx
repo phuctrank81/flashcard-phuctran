@@ -203,6 +203,7 @@ const QUIZ_TOPICS: QuizTopic[] = [
   },
 ]
 
+//ssd
 const KAHOOT_COLORS = [
   { bg: "bg-red-500", hover: "hover:bg-red-600", border: "border-red-600", selected: "bg-red-700" },
   { bg: "bg-blue-500", hover: "hover:bg-blue-600", border: "border-blue-600", selected: "bg-blue-700" },
