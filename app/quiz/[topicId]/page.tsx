@@ -307,7 +307,7 @@ export default function TopicQuizPage() {
       const timer = setTimeout(() => setTimeLeft(timeLeft - 1), 1000)
       return () => clearTimeout(timer)
     } else if (timeLeft === 0 && !isAnswered) {
-      setIsAnswered(true)
+
     }
   }, [gameState, timeLeft, isAnswered])
 
