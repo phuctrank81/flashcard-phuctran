@@ -3,8 +3,8 @@
 import { useState, useEffect, useRef } from "react"
 import { useParams, useRouter } from "next/navigation"
 import { CheckCircle2, XCircle, Trophy, Timer, Volume2, VolumeX, ArrowLeft } from "lucide-react"
-import Header from "@/app/components/Header"
-import Footer from "@/app/components/Footer"
+import Header from "../../components/Header"
+import Footer from "../../components/Footer"
 
 interface QuizQuestion {
   id: string
