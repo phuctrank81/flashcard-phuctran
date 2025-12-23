@@ -108,7 +108,7 @@ export default function HomePage() {
             <GraduationCap className="w-16 h-16 text-indigo-600 mx-auto mb-6" />
             <h2 className="text-3xl font-bold text-slate-900 mb-4">Sẵn sàng chinh phục IELTS?</h2>
             <p className="text-lg text-slate-600 mb-8 max-w-2xl mx-auto">
-              Bắt đầu hành trình học từ vựng hiệu quả ngay hôm nay với IELTS Master.
+              Bắt đầu hành trình học từ vựng hiệu quả ngay hôm nay với Study MVP.
             </p>
             <Link
               href="/flashcards"

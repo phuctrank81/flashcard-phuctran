@@ -9,14 +9,14 @@ export default function Footer() {
                         <div className="bg-indigo-600 text-white p-1.5 rounded-lg">
                             <BookOpen className="w-4 h-4" />
                         </div>
-                        <span className="font-bold text-white">IELTS Master</span>
+                        <span className="font-bold text-white">Study MVP</span>
                     </div>
 
                     <div className="text-sm text-center md:text-left">
                         <p>Học tiếng Anh hiệu quả mỗi ngày với phương pháp flashcard</p>
                     </div>
 
-                    <div className="text-sm text-slate-400">© 2025 IELTS Master. All rights reserved.</div>
+                    <div className="text-sm text-slate-400">© 2025 Study MVP. All rights reserved.</div>
                 </div>
             </div>
         </footer>

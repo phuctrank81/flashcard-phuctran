@@ -12,7 +12,7 @@ export default function Header() {
           <div className="bg-indigo-600 text-white p-1.5 rounded-lg">
             <BookOpen className="w-5 h-5" />
           </div>
-          <span className="text-xl font-bold tracking-tight">IELTS Master</span>
+          <span className="text-xl font-bold tracking-tight">Study MVP</span>
         </Link>
 
         <nav className="flex items-center gap-6">
