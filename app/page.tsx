@@ -1,5 +1,3 @@
-"use client"
-
 import { BookOpen, GraduationCap, Zap, Trophy, Brain, Target } from "lucide-react"
 import Link from "next/link"
 import BannerSlider from "./components/BannerSlider"
