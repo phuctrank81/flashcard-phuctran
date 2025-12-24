@@ -1,8 +1,8 @@
 import { BookOpen, GraduationCap, Zap, Trophy, Brain, Target } from "lucide-react"
 import Link from "next/link"
-import BannerSlider from "./components/BannerSlider"
-import Header from "./components/Header"
-import Footer from "./components/Footer"
+import BannerSlider from "../components/banner"
+import Header from "../components/header"
+import Footer from "../components/footer"
 
 export default function HomePage() {
   return (
