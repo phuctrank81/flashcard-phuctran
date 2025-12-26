@@ -16,6 +16,7 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Study MVP",
   description: "Phuc Tran",
+  icons: "/favicon.ico",
 };
 
 export default function RootLayout({
@@ -36,3 +37,4 @@ export default function RootLayout({
     </html>
   );
 }
+
