@@ -1,5 +1,9 @@
 {
   "compilerOptions": {
+    "baseUrl": ".", 
+    "paths": {
+      "@/*": ["./*"]
+    },
     "target": "ES2017",
     "lib": ["dom", "dom.iterable", "esnext"],
     "allowJs": true,
@@ -13,25 +17,15 @@
     "isolatedModules": true,
     "jsx": "react-jsx",
     "incremental": true,
-    "plugins": [
-      {
-        
-        "name": "next"
-      }
-    ],
-    "paths": {
-      "@/*": ["./*"]
-    }
-    
+    "plugins": [{ "name": "next" }]
   },
   "include": [
     "next-env.d.ts",
     "**/*.ts",
     "**/*.tsx",
-    ".next/types/**/*.ts",
-    ".next/dev/types/**/*.ts",
-    "**/*.mts"
+    "**/*.js",    // Thêm dòng này để nhận diện file .js
+    "**/*.jsx",   // Thêm dòng này
+    ".next/types/**/*.ts"
   ],
-  "exclude": ["node_modules"],
-  
+  "exclude": ["node_modules"]
 }
