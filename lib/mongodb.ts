@@ -6,9 +6,9 @@ if (!MONGODB_URI) {
   throw new Error("Missing MONGODB_URI");
 }
 
-export default function connectDb() {
+export default async function connectDb() {
   try{
-    mongoose.connect(MONGODB_URI);
+    await mongoose.connect(MONGODB_URI);
     console.log("Connected to MongoDB");
   }catch(error){
     console.error("MongoDB connection error:", error);
