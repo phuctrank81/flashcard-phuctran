@@ -1,18 +1,18 @@
 import { NextResponse } from "next/server";
-import { connectDB } from "@/lib/mongodb";
-import words from "@/models/words";
+import connectDB from "@/lib/mongodb";
+import Words from "@/models/words";
 
 export async function GET() {
   try {
     await connectDB();
 
-    const data = await words.find(); // 🔥 fetch từ words.ielts_vocabulary
+    const words = await Words.find().lean();
 
-    return NextResponse.json(data);
+    return NextResponse.json(words);
   } catch (error) {
     console.error(error);
     return NextResponse.json(
-      { error: "Database connection or query failed" },
+      { error: "Không lấy được dữ liệu" },
       { status: 500 }
     );
   }
