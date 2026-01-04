@@ -2,6 +2,9 @@ import { NextResponse } from "next/server";
 import connectDB from "@/lib/mongodb";
 import Words from "@/models/words";
 
+// 👇 THÊM ĐOẠN NÀY
+export const maxDuration = 30;
+
 export async function GET() {
   try {
     await connectDB();
