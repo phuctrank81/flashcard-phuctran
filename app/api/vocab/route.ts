@@ -6,7 +6,7 @@ export async function GET() {
   try {
     await connectDB();
 
-    const words = await Words.find().lean();
+    const words = await Words.find({ timeout: 3000 }).lean();
 
     // Thêm độ trễ 30 giây
     await new Promise(resolve => setTimeout(resolve, 30000));
