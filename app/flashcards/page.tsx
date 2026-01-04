@@ -96,7 +96,7 @@ export default function FlashcardsPage() {
                 </div>
               ))
             ) : (
-              <p className="text-center text-slate-500 py-10">Danh sách từ vựng trống.</p>
+              <p className="text-center text-slate-500 py-10">Danh sách từ vựng ko có gì</p>
             )}
           </div>
         )}
