@@ -16,7 +16,7 @@ export default function Footer() {
                         <p>Học tiếng Anh hiệu quả mỗi ngày với phương pháp flashcard</p>
                     </div>
 
-                    <div className="text-sm text-slate-400">© 2025 Study MVP. All rights reserved.</div>
+                    <div className="text-sm text-slate-400">© 2026 Study MVP. All rights reserved.</div>
                 </div>
             </div>
         </footer>
