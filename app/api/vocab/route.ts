@@ -7,14 +7,11 @@ export async function GET() {
   try {
     await connectDB();
 
-    const words = await Words
-      .find({})
-      .maxTimeMS(30000)
-      .lean();
+    const words = await Words.find().lean();
 
     return NextResponse.json(words);
   } catch (error) {
-    console.error(error);
+    console.error("Lỗi lấy dữ liệu:", error);
     return NextResponse.json(
       { error: "Không lấy được dữ liệu" },
       { status: 500 }
