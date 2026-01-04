@@ -2,12 +2,22 @@ import mongoose from "mongoose";
 
 const WordsSchema = new mongoose.Schema(
   {
-    word: String,
-    definition: String,
-    example: String,
+    word: {
+      type: String,
+      required: true,
+    },
+    definition: {
+      type: String,
+      required: true,
+    },
+    example: {
+      type: String,
+      required: true,
+    },
   },
   {
-    collection: "ielts_vocabulary", 
+    collection: "ielts_vocabulary",
+    timestamps: true,
   }
 );
 
