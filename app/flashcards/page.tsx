@@ -20,7 +20,7 @@ export default function FlashcardsPage() {
   useEffect(() => {
     const fetchWords = async () => {
       try {
-        const response = await fetch("/api/vocab");
+        const response = await fetch("http://localhost:8000/api/vocab");
         const data = await response.json();
 
         // 2. Kiểm tra nếu data trả về là mảng thì mới setWords
