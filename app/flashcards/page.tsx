@@ -17,29 +17,24 @@ export default function FlashcardsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    const fetchWords = async () => {
-      try {
-        const response = await fetch("http://localhost:8000/api/vocab");
-        const data = await response.json();
+ useEffect(() => {
+  const fetchWords = async () => {
+    try {
+      const res = await fetch("/api/vocab");
 
-        // 2. Kiểm tra nếu data trả về là mảng thì mới setWords
-        if (Array.isArray(data)) {
-          setWords(data);
-        } else {
-          // Nếu data có chứa trường 'error' từ API trả về
-          setError(data.error || "Dữ liệu không đúng định dạng");
-        }
-      } catch (err) {
-        setError("Không thể kết nối đến máy chủ");
-        console.error("Lỗi fetch:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
+      if (!res.ok) throw new Error("Fetch failed");
 
-    fetchWords();
-  }, []);
+      const data = await res.json();
+      setWords(data);
+    } catch (err) {
+      setError("Không lấy được dữ liệu");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  fetchWords();
+}, []);
 
   return (
     <div className="min-h-screen flex flex-col bg-slate-50">
