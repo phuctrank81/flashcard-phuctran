@@ -1,4 +1,3 @@
-
 import connectDB from "@/server/lib/mongodb";
 import Words from "@/server/models/words";
 import { NextResponse } from "next/server";
