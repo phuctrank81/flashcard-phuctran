@@ -20,7 +20,7 @@ export default function FlashcardsPage() {
  useEffect(() => {
   const fetchWords = async () => {
     try {
-      const res = await fetch("/api/vocab");
+      const res = await fetch("http://localhost:8000/api/vocab");
 
       if (!res.ok) throw new Error("Fetch failed");
 
