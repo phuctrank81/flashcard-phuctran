@@ -8,7 +8,7 @@ type Flashcard = {
   _id: string;
   word: string;
   definition: string;
-  example: string;
+  example?: string;
 };
 
 export default function FlashcardsPage() {
@@ -19,15 +19,18 @@ export default function FlashcardsPage() {
   useEffect(() => {
     const fetchWords = async () => {
       try {
-        const res = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL}/vocab`
-        );
+        const apiBase = process.env.MONGODB_URI || "http://localhost:8000"; // 5000 → 8000
+        const res = await fetch(`${apiBase}/api/vocab`, {
+          method: "GET",
+          credentials: "include",
+        });
 
-        if (!res.ok) throw new Error("Fetch failed");
+        if (!res.ok) throw new Error("Failed to fetch");
 
-        const data = await res.json();
+        const data: Flashcard[] = await res.json();
         setWords(data);
       } catch (err) {
+        console.error(err);
         setError("Không lấy được dữ liệu");
       } finally {
         setLoading(false);
@@ -40,6 +43,7 @@ export default function FlashcardsPage() {
   return (
     <div className="min-h-screen flex flex-col bg-slate-50">
       <Header />
+
       <main className="flex-1 px-4 py-8 max-w-3xl mx-auto w-full">
         <h1 className="text-2xl font-bold mb-6 text-center text-slate-800">
           IELTS Vocabulary Flashcards
@@ -47,8 +51,8 @@ export default function FlashcardsPage() {
 
         {loading && (
           <div className="flex justify-center items-center py-10">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-            <p className="ml-3 text-slate-600">Đang tải từ vựng</p>
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600" />
+            <p className="ml-3 text-slate-600">Đang tải từ vựng...</p>
           </div>
         )}
 
@@ -62,22 +66,34 @@ export default function FlashcardsPage() {
           <div className="grid gap-6">
             {words.length > 0 ? (
               words.map((item) => (
-                <div key={item._id} className="p-6 bg-white rounded-2xl shadow-sm border">
-                  <h2 className="text-2xl font-bold text-blue-600">
+                <div
+                  key={item._id}
+                  className="p-6 bg-white rounded-2xl shadow-sm border"
+                >
+                  <h2 className="text-2xl font-bold text-blue-600 mb-2">
                     {item.word}
                   </h2>
-                  <p><b>Nghĩa:</b> {item.definition}</p>
-                  {item.example && <i>{item.example}</i>}
+
+                  <p className="text-slate-700 mb-1">
+                    <b>Nghĩa:</b> {item.definition}
+                  </p>
+
+                  {item.example && (
+                    <p className="italic text-slate-500">
+                      {item.example}
+                    </p>
+                  )}
                 </div>
               ))
             ) : (
               <p className="text-center text-slate-500 py-10">
-                Danh sách từ vựng ko có gì
+                Chưa có từ vựng nào
               </p>
             )}
           </div>
         )}
       </main>
+
       <Footer />
     </div>
   );
