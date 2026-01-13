@@ -7,7 +7,9 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "server": "cd server && node server.js && npx ts-node src/main.ts"
+    "server": "node server/server.js",
+    "server:dev": "nodemon server/server.js",
+    "dev:all": "concurrently \"npm run dev\" \"npm run server:dev\" --names \"NEXT,API\" --prefix-colors \"cyan,magenta\""
   },
   "dependencies": {
     "@nestjs/common": "^11.1.11",
@@ -38,6 +40,7 @@
     "@types/react-dom": "^19",
     "animate": "^1.0.0",
     "baseline-browser-mapping": "^2.9.6",
+    "concurrently": "^9.1.0",
     "css": "^3.0.0",
     "eslint": "^9",
     "eslint-config-next": "16.0.5",
