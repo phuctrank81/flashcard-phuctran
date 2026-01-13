@@ -9,6 +9,7 @@ const retrieveVocab = require("../controller/vocab/retrieve");
 const updateVocab = require("../controller/vocab/update");
 const deleteVocab = require("../controller/vocab/delete");
 
+//s
 // ------------------------ route begin ------------------------
 
 // create vocab
