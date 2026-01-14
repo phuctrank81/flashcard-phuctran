@@ -3,7 +3,7 @@ const mongoose = require("mongoose");
 const WordsSchema = new mongoose.Schema(
   {
     word: {
-      type: String,
+      type: String, 
       required: true,
     },
     definition: {
@@ -12,6 +12,7 @@ const WordsSchema = new mongoose.Schema(
     },
     example: {
       type: String,
+      required: false,
     },
   },
   {
