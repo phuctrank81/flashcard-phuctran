@@ -17,30 +17,26 @@ export default function FlashcardsPage() {
   const [error, setError] = useState<string | null>(null);
 
 useEffect(() => {
-  const fetchWords = async () => {
-    try {
-      const apiBase =
-        process.env.MONGODB_URI;
+    const fetchWords = async () => {
+      try {
+        const apiBase =
+          process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
-      const res = await fetch(`${apiBase}/api/vocab`, {
-        method: "GET",
-        credentials: "include",
-      });
+        const res = await fetch(`${apiBase}/api/vocab`);
 
-      if (!res.ok) throw new Error("Failed to fetch");
+        if (!res.ok) throw new Error("Fetch failed");
 
-      const data: Flashcard[] = await res.json();
-      setWords(data);
-    } catch (err) {
-      console.error(err);
-      setError("Không lấy được dữ liệu");
-    } finally {
-      setLoading(false);
-    }
-  };
+        const data: Flashcard[] = await res.json();
+        setWords(data);
+      } catch (err) {
+        setError("Không lấy được dữ liệu");
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  fetchWords();
-}, []);
+    fetchWords();
+  }, []);
 
 
   return (

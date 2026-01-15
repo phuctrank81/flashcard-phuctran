@@ -1,44 +1,36 @@
 const express = require("express");
 const app = express();
-const port = process.env.PORT || 10000;  // ← Thay đổi 1: Thêm process.env.PORT
-const connectDB = require('./connectdb');
-const morgan = require('morgan');
-const cors = require('cors');
-const cookieParser = require('cookie-parser');
-const router = require('./routes/route'); 
+const connectDB = require("./connectdb");
+const morgan = require("morgan");
+const cors = require("cors");
+const cookieParser = require("cookie-parser");
+const router = require("./routes/route");
 
-const allowedOrigins = [
-  "https://studymvp.io.vn",
-  "https://www.studymvp.io.vn"  // ← Thay đổi 2: Thêm www
-];
+const PORT = process.env.PORT || 8000;
 
-// 🔥 MIDDLEWARE PHẢI ĐẶT TRƯỚC ROUTE
-app.use(morgan('dev'));
+app.use(morgan("dev"));
 
 app.use(cors({
-  origin: allowedOrigins,
+  origin: [
+    "http://localhost:3000",
+    "https://studymvp.io.vn",
+    "https://www.studymvp.io.vn",
+  ],
   credentials: true,
 }));
 
 app.use(express.json());
 app.use(cookieParser());
 
-// 🔥 ROUTES
-app.use('/api', router);
+app.use("/api", router);
 
-app.get('/health', (req, res) => {
-  res.status(200).send('OK');
+app.get("/health", (req, res) => {
+  res.send("OK");
 });
 
-// START SERVER
 (async () => {
-  try {
-    await connectDB();
-    app.listen(port, () => {
-      console.log(`✅ Server running on port ${port}`);  // ← Thay đổi 3: Bỏ hardcode localhost
-    });
-  } catch (err) {
-    console.error("❌ Failed to start server:", err);
-    process.exit(1);
-  }
+  await connectDB();
+  app.listen(PORT, "0.0.0.0", () => {
+    console.log(`✅ Server running on port ${PORT}`);
+  });
 })();
