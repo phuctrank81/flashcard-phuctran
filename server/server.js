@@ -1,6 +1,6 @@
 const express = require("express");
 const app = express();
-const port = process.env.PORT || 10000;  // ← Thay đổi 1: Thêm process.env.PORT
+const port = process.env.PORT;  // ← Thay đổi 1: Thêm process.env.PORT
 const connectDB = require('./connectdb');
 const morgan = require('morgan');
 const cors = require('cors');
@@ -35,7 +35,7 @@ app.get('/health', (req, res) => {
 (async () => {
   try {
     await connectDB();
-    app.listen(port, () => {
+    app.listen(port, "0.0.0.0", () => {
       console.log(`✅ Server running on port ${port}`);  // ← Thay đổi 3: Bỏ hardcode localhost
     });
   } catch (err) {
