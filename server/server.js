@@ -8,7 +8,6 @@ const cookieParser = require('cookie-parser');
 const router = require('./routes/route'); 
 
 const allowedOrigins = [
-  "http://localhost:3000",
   "https://studymvp.io.vn",
   "https://www.studymvp.io.vn"  // ← Thay đổi 2: Thêm www
 ];
