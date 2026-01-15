@@ -1,6 +1,6 @@
 const express = require("express");
 const app = express();
-const port = process.env.PORT || 8000;  // ← Thay đổi 1: Thêm process.env.PORT
+const port = process.env.PORT || 10000;  // ← Thay đổi 1: Thêm process.env.PORT
 const connectDB = require('./connectdb');
 const morgan = require('morgan');
 const cors = require('cors');
