@@ -20,7 +20,7 @@ useEffect(() => {
   const fetchWords = async () => {
     try {
       const apiBase =
-        process.env.NEXT_PUBLIC_API_URL || "http://localhost:10000";
+        process.env.MONGODB_URI;
 
       const res = await fetch(`${apiBase}/api/vocab`, {
         method: "GET",
