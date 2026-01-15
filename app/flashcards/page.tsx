@@ -20,11 +20,10 @@ useEffect(() => {
   const fetchWords = async () => {
     try {
       const apiBase =
-        process.env.MONGODB_URI;
+        process.env.MONGODB_URI || "http://localhost:10000";
 
-      const res = await fetch(`${apiBase}/api/vocab` || "http://localhost:10000/api/vocab", {
+      const res = await fetch(`${apiBase}/api/vocab`, {
         method: "GET",
-        credentials: "include",
       });
 
       if (!res.ok) throw new Error("Failed to fetch");
@@ -41,6 +40,7 @@ useEffect(() => {
 
   fetchWords();
 }, []);
+
 
 
   return (
