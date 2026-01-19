@@ -22,6 +22,9 @@ export default function Header() {
           <Link href="/quiz" className="text-slate-700 hover:text-indigo-600 font-semibold transition-colors">
             Quiz Game
           </Link>
+          <Link href="/login" className="text-slate-700 hover:text-indigo-600 font-semibold transition-colors">
+            Login
+          </Link>
         </nav>
       </div>
     </header>

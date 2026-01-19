@@ -8,8 +8,15 @@ const addVocab = require("../controller/vocab/add");
 const retrieveVocab = require("../controller/vocab/retrieve");
 const updateVocab = require("../controller/vocab/update");
 const deleteVocab = require("../controller/vocab/delete");
+const register = require("../controller/auth/register");
+const login = require("../controller/auth/login");
 
-//s
+
+// đăng ký
+router.post("/register", register);
+
+// đăng nhập
+router.post("/login", login);
 // ------------------------ route begin ------------------------
 
 // create vocab
