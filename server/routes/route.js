@@ -11,6 +11,8 @@ const deleteVocab = require("../controller/vocab/delete");
 const register = require("../controller/auth/register");
 const login = require("../controller/auth/login");
 
+router.post("/auth/register", register);  // ✅ Thêm /auth
+router.post("/auth/login", login);
 
 // đăng ký
 router.post("/register", register);

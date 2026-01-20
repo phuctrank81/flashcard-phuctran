@@ -9,7 +9,7 @@ const connectDB = async () => {
   try {
     await mongoose.connect(process.env.MONGODB_URI,{
       dbName: 'words',
-      dbNam: 'user'
+      dbName: 'user'
     });
     console.log('Connected to MongoDB');
   } catch (err) {

@@ -1,39 +1,24 @@
-const mongoose = require("mongoose");
+const mongoose = require('mongoose');
 
-const UserSchema = new mongoose.Schema(
-  {
-    username: {
-      type: String,
-      required: true,
-      trim: true,
-      minlength: 3,
-    },
-
-    email: {
-      type: String,
-      required: true,
-      unique: true,
-      lowercase: true,
-      trim: true,
-    },
-
-    password: {
-      type: String,
-      required: true,
-      minlength: 6,
-    },
-
-    role: {
-      type: String,
-      enum: ["user", "admin"],
-      default: "user",
-    },
+const userSchema = new mongoose.Schema({
+  username: {
+    type: String,
+    required: true,
+    trim: true
   },
-  {
-    timestamps: true,
-    collection: "account", // ✅ CHỈ RÕ COLLECTION
+  email: {
+    type: String,
+    required: true,
+    unique: true,
+    lowercase: true,
+    trim: true
+  },
+  password: {
+    type: String,
+    required: true
   }
-);
+}, {
+  timestamps: true  // ✅ Tự động thêm createdAt, updatedAt
+});
 
-module.exports =
-  mongoose.models.user || mongoose.model("user", UserSchema);
+module.exports = mongoose.model('user', userSchema);
