@@ -16,7 +16,7 @@ export default function LoginPage() {
             Đăng nhập
           </h1>
           <p className="text-center text-slate-500 mb-6">
-            Chào mừng bạn quay lại
+            Chào mừng bạn quay lại haha
           </p>
 
           <input
