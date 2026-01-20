@@ -30,9 +30,10 @@ const UserSchema = new mongoose.Schema(
     },
   },
   {
-    timestamps: true, // tự tạo createdAt, updatedAt
+    timestamps: true,
+    collection: "account", // ✅ CHỈ RÕ COLLECTION
   }
 );
 
-// Tránh lỗi OverwriteModelError khi dùng Next.js
-module.exports = mongoose.models.User || mongoose.model("user", UserSchema);
+module.exports =
+  mongoose.models.user || mongoose.model("user", UserSchema);
