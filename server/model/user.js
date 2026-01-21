@@ -18,7 +18,8 @@ const userSchema = new mongoose.Schema({
     required: true
   }
 }, {
+  collection: 'account', // ✅ Tên collection trong MongoDB
   timestamps: true  // ✅ Tự động thêm createdAt, updatedAt
 });
 
-module.exports = mongoose.model('user', userSchema);
+module.exports = mongoose.model('account', userSchema);
