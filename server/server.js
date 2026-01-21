@@ -83,5 +83,5 @@ const startServer = async () => {
     process.exit(1);
   }
 };
-
+// Call the function to start the server
 startServer();
