@@ -10,15 +10,20 @@ const updateVocab = require("../controller/vocab/update");
 const deleteVocab = require("../controller/vocab/delete");
 const register = require("../controller/auth/register");
 const login = require("../controller/auth/login");
+const verifyEmail = require("../controller/auth/verifyEmail");
 
 router.post("/auth/register", register);  // ✅ Thêm /auth
 router.post("/auth/login", login);
+router.post("/auth/verify-email", verifyEmail);
 
 // đăng ký
 router.post("/register", register);
 
 // đăng nhập
 router.post("/login", login);
+
+// xác thực email
+router.post("/verify-email", verifyEmail);
 // ------------------------ route begin ------------------------
 
 // create vocab

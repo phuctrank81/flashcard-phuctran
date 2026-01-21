@@ -1,5 +1,7 @@
 const bcrypt = require("bcryptjs");
+const crypto = require("crypto");
 const User = require("../../model/user");
+const { sendVerificationEmail } = require("../../utils/emailService");
 
 module.exports = async (req, res) => {
   try {
@@ -30,21 +32,33 @@ module.exports = async (req, res) => {
     // Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Create user
+    // Tạo verification token
+    const verificationToken = crypto.randomBytes(32).toString("hex");
+    const verificationTokenExpiry = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 giờ
+
+    // Create user với trạng thái chưa xác thực
     const newUser = await User.create({
       username,
       email,
       password: hashedPassword,
+      isVerified: false,
+      verificationToken,
+      verificationTokenExpiry,
     });
+
+    // Gửi email xác thực
+    const emailSent = await sendVerificationEmail(email, verificationToken, username);
 
     // Return success
     res.status(201).json({
-      message: "Đăng ký thành công",
+      message: "Đăng ký thành công! Vui lòng kiểm tra email để xác thực tài khoản",
       user: {
         id: newUser._id,
         username: newUser.username,
         email: newUser.email,
+        isVerified: newUser.isVerified,
       },
+      emailSent,
     });
 
   } catch (error) {

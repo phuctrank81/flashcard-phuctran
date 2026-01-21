@@ -16,6 +16,18 @@ const userSchema = new mongoose.Schema({
   password: {
     type: String,
     required: true
+  },
+  isVerified: {
+    type: Boolean,
+    default: false
+  },
+  verificationToken: {
+    type: String,
+    default: null
+  },
+  verificationTokenExpiry: {
+    type: Date,
+    default: null
   }
 }, {
   collection: 'account', // ✅ Tên collection trong MongoDB
