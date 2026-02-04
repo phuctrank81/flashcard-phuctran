@@ -11,12 +11,9 @@ const errorResponse = (message, status = 500, error) =>
     { status }
   );
 
-const getUserUri = () =>
-  process.env.MONGODB_URI_USER || process.env.MONGODB_URI;
-
 exports.POST = async (request) => {
   try {
-    await connectDB(getUserUri());
+    await connectDB();
     const { token } = await request.json();
 
     if (!token) {

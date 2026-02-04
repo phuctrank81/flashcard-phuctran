@@ -11,12 +11,9 @@ const errorResponse = (message, status = 500, error) =>
     { status }
   );
 
-const getFlashcardUri = () =>
-  process.env.MONGODB_URI_FLASHCARD || process.env.MONGODB_URI;
-
 exports.GET = async (request, context) => {
   try {
-    await connectDB(getFlashcardUri());
+    await connectDB();
     const { id } = context.params;
     const flashcard = await Words.findById(id);
 
@@ -32,7 +29,7 @@ exports.GET = async (request, context) => {
 
 exports.PATCH = async (request, context) => {
   try {
-    await connectDB(getFlashcardUri());
+    await connectDB();
     const { id } = context.params;
     const updates = await request.json();
 
@@ -49,7 +46,7 @@ exports.PATCH = async (request, context) => {
 
 exports.DELETE = async (request, context) => {
   try {
-    await connectDB(getFlashcardUri());
+    await connectDB();
     const { id } = context.params;
 
     const vocab = await Words.findByIdAndDelete(id);
