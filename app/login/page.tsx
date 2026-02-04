@@ -25,8 +25,7 @@ export default function LoginPage() {
     try {
       setLoading(true);
 
-      const API_URL =
-        process.env.MONGODB_URI_USER || "http://localhost:10000";
+      const API_URL = process.env.NEXT_PUBLIC_API_URL || "";
 
       const res = await fetch(`${API_URL}/api/auth/login`, {
         method: "POST",
