@@ -11,9 +11,12 @@ const errorResponse = (message, status = 500, error) =>
     { status }
   );
 
+const getFlashcardUri = () =>
+  process.env.MONGODB_URI_FLASHCARD || process.env.MONGODB_URI;
+
 exports.GET = async () => {
   try {
-    await connectDB();
+    await connectDB(getFlashcardUri());
     const flashcards = await Words.find();
     return jsonResponse(flashcards);
   } catch (error) {
@@ -23,7 +26,7 @@ exports.GET = async () => {
 
 exports.POST = async (request) => {
   try {
-    await connectDB();
+    await connectDB(getFlashcardUri());
     const { word, definition, example } = await request.json();
 
     if (!word || !definition) {
