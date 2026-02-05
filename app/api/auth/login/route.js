@@ -16,6 +16,7 @@ exports.POST = async (request) => {
   try {
     const db = await connectDB(process.env.MONGODB_URI, "users");
     const User = getUserModel(db);
+    console.log("[auth.login] db:", db.name, "collection:", User.collection.name);
     const { email, password } = await request.json();
 
     if (!email || !password) {
