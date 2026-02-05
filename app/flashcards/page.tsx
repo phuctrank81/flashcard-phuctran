@@ -1,5 +1,6 @@
 import Header from "@/components/header";
 import Footer from "@/components/footer";
+import { headers } from "next/headers";
 
 type Flashcard = {
   _id: string;
@@ -9,10 +10,10 @@ type Flashcard = {
 };
 
 export default async function FlashcardsPage() {
-  const baseUrl =
-    process.env.NEXT_PUBLIC_API_URL ||
-    process.env.NEXTAUTH_URL ||
-    "http://localhost:3000";
+  const headerList = await headers();
+  const host = headerList.get("x-forwarded-host") || headerList.get("host") || "localhost:3000";
+  const protocol = headerList.get("x-forwarded-proto") || "http";
+  const baseUrl = `${protocol}://${host}`;
 
   let words: Flashcard[] = [];
   let error: string | null = null;
