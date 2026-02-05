@@ -14,36 +14,12 @@ pnpm dev
 bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-## API (Vercel-ready)
-
-This project now exposes API endpoints via Next.js Route Handlers (no separate Express server needed on Vercel):
-
-- `POST /api/auth/register`
-- `POST /api/auth/login`
-- `POST /api/auth/verify-email`
-- `GET /api/vocab`
-- `POST /api/vocab`
-- `GET /api/vocab/:id`
-- `PATCH /api/vocab/:id`
-- `DELETE /api/vocab/:id`
-
-Environment variables (set in `.env.local` for local dev and in Vercel Project Settings for production):
-
-- `MONGODB_URI`
-- `EMAIL_USER`
-- `EMAIL_PASSWORD`
-- `EMAIL_FROM`
-- `NEXT_PUBLIC_FRONTEND_URL`
-
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
 ## Learn More
 
-To learn more about Next.js, take a look at the following resources:
+Nothing to read here yet!
+
+
 
 - [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
 - [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
