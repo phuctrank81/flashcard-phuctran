@@ -28,7 +28,7 @@ export default async function FlashcardsPage() {
     words = await res.json();
   } catch (err) {
     console.error(err);
-    error = "KhĂ´ng láº¥y Ä‘Æ°á»£c dá»¯ liá»‡u";
+    error = "Không lấy được từ vựng";
   }
 
   return (
@@ -59,7 +59,7 @@ export default async function FlashcardsPage() {
                   </h2>
 
                   <p className="text-slate-700 mb-1">
-                    <b>NghÄ©a:</b> {item.definition}
+                    <b>Nghĩa:</b> {item.definition}
                   </p>
 
                   {item.example && (
@@ -71,7 +71,7 @@ export default async function FlashcardsPage() {
               ))
             ) : (
               <p className="text-center text-slate-500 py-10">
-                ChÆ°a cĂ³ tá»« vá»±ng nĂ o
+                Chưa có từ vựng nào
               </p>
             )}
           </div>
