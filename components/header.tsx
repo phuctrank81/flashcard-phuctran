@@ -2,8 +2,22 @@
 
 import { BookOpen } from "lucide-react"
 import Link from "next/link"
+import { useEffect, useState } from "react"
 
 export default function Header() {
+  const [username, setUsername] = useState<string | null>(null)
+
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem("user")
+      if (!raw) return
+      const parsed = JSON.parse(raw)
+      if (parsed?.username) setUsername(parsed.username)
+    } catch {
+      // Ignore malformed localStorage
+    }
+  }, [])
+
   return (
     <header className="bg-white border-b border-slate-200 sticky top-0 z-40 shadow-sm">
       <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
@@ -22,9 +36,15 @@ export default function Header() {
           <Link href="/quiz" className="text-slate-700 hover:text-indigo-600 font-semibold transition-colors">
             Quiz Game
           </Link>
-          <Link href="/login" className="text-slate-700 hover:text-indigo-600 font-semibold transition-colors">
-            Login
-          </Link>
+          {username ? (
+            <span className="text-slate-700 font-semibold">
+              Profile: {username}
+            </span>
+          ) : (
+            <Link href="/login" className="text-slate-700 hover:text-indigo-600 font-semibold transition-colors">
+              Login
+            </Link>
+          )}
         </nav>
       </div>
     </header>
