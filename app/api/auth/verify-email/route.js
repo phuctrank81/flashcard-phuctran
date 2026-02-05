@@ -1,6 +1,6 @@
 const { NextResponse } = require("next/server");
 const connectDB = require("../../../../lib/mongodb");
-const User = require("../../../../server/model/user");
+const { getUserModel } = require("../../../../server/model/user");
 
 const jsonResponse = (data, init = {}) =>
   NextResponse.json(data, init);
@@ -13,7 +13,8 @@ const errorResponse = (message, status = 500, error) =>
 
 exports.POST = async (request) => {
   try {
-    await connectDB(process.env.MONGODB_URI);
+    const db = await connectDB(process.env.MONGODB_URI, "users");
+    const User = getUserModel(db);
     const { token } = await request.json();
 
     if (!token) {

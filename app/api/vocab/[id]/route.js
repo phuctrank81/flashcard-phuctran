@@ -1,6 +1,6 @@
 const { NextResponse } = require("next/server");
 const connectDB = require("../../../../lib/mongodb");
-const Words = require("../../../../server/model/words");
+const { getWordsModel } = require("../../../../server/model/words");
 
 const jsonResponse = (data, init = {}) =>
   NextResponse.json(data, init);
@@ -13,7 +13,8 @@ const errorResponse = (message, status = 500, error) =>
 
 exports.GET = async (request, context) => {
   try {
-    await connectDB();
+    const db = await connectDB(process.env.MONGODB_URI, "words");
+    const Words = getWordsModel(db);
     const { id } = context.params;
     const flashcard = await Words.findById(id);
 
@@ -29,7 +30,8 @@ exports.GET = async (request, context) => {
 
 exports.PATCH = async (request, context) => {
   try {
-    await connectDB();
+    const db = await connectDB(process.env.MONGODB_URI, "words");
+    const Words = getWordsModel(db);
     const { id } = context.params;
     const updates = await request.json();
 
@@ -46,7 +48,8 @@ exports.PATCH = async (request, context) => {
 
 exports.DELETE = async (request, context) => {
   try {
-    await connectDB();
+    const db = await connectDB(process.env.MONGODB_URI, "words");
+    const Words = getWordsModel(db);
     const { id } = context.params;
 
     const vocab = await Words.findByIdAndDelete(id);

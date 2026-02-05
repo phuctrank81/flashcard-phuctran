@@ -1,6 +1,6 @@
 const { NextResponse } = require("next/server");
 const connectDB = require("../../../lib/mongodb");
-const Words = require("../../../server/model/words");
+const { getWordsModel } = require("../../../server/model/words");
 
 const jsonResponse = (data, init = {}) =>
   NextResponse.json(data, init);
@@ -13,7 +13,8 @@ const errorResponse = (message, status = 500, error) =>
 
 exports.GET = async () => {
   try {
-    await connectDB();
+    const db = await connectDB(process.env.MONGODB_URI, "words");
+    const Words = getWordsModel(db);
     const flashcards = await Words.find();
     return jsonResponse(flashcards);
   } catch (error) {
@@ -23,7 +24,8 @@ exports.GET = async () => {
 
 exports.POST = async (request) => {
   try {
-    await connectDB();
+    const db = await connectDB(process.env.MONGODB_URI, "words");
+    const Words = getWordsModel(db);
     const { word, definition, example } = await request.json();
 
     if (!word || !definition) {

@@ -2,7 +2,7 @@ const { NextResponse } = require("next/server");
 const bcrypt = require("bcryptjs");
 const crypto = require("crypto");
 const connectDB = require("../../../../lib/mongodb");
-const User = require("../../../../server/model/user");
+const { getUserModel } = require("../../../../server/model/user");
 const { sendVerificationEmail } = require("../../../../server/utils/emailService");
 
 const jsonResponse = (data, init = {}) =>
@@ -16,7 +16,8 @@ const errorResponse = (message, status = 500, error) =>
 
 exports.POST = async (request) => {
   try {
-    await connectDB(process.env.MONGODB_URI);
+    const db = await connectDB(process.env.MONGODB_URI, "users");
+    const User = getUserModel(db);
     const { username, email, password } = await request.json();
 
     if (!username || !email || !password) {

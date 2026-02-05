@@ -1,4 +1,5 @@
-const Words = require("../../model/words.js");
+const mongoose = require("mongoose");
+const { getWordsModel } = require("../../model/words.js");
 
 module.exports = async (req, res) => {
   try {
@@ -8,6 +9,8 @@ module.exports = async (req, res) => {
       return res.status(400).json({ message: "Missing fields" });
     }
 
+    const db = mongoose.connection.useDb("words", { useCache: true });
+    const Words = getWordsModel(db);
     const vocab = await Words.create({
       word,
       definition,

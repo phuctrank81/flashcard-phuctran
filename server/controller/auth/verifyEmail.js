@@ -1,4 +1,5 @@
-const User = require("../../model/user");
+const mongoose = require("mongoose");
+const { getUserModel } = require("../../model/user");
 
 module.exports = async (req, res) => {
   try {
@@ -9,6 +10,8 @@ module.exports = async (req, res) => {
     }
 
     // Tìm user với token này
+    const db = mongoose.connection.useDb("users", { useCache: true });
+    const User = getUserModel(db);
     const user = await User.findOne({
       verificationToken: token,
       verificationTokenExpiry: { $gt: new Date() }, // Token chưa hết hạn

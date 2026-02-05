@@ -1,8 +1,11 @@
-const Words = require('../../model/words');
+const mongoose = require("mongoose");
+const { getWordsModel } = require("../../model/words");
 
 // Get all vocab
 exports.getAll = async (req, res) => {
   try {
+    const db = mongoose.connection.useDb("words", { useCache: true });
+    const Words = getWordsModel(db);
     const flashcards = await Words.find();
     console.log(`Fetched ${flashcards.length} words from ielts_vocabulary`);
     res.json(flashcards);
@@ -18,6 +21,8 @@ exports.getAll = async (req, res) => {
 // Get vocab by id
 exports.getById = async (req, res) => {
   try {
+    const db = mongoose.connection.useDb("words", { useCache: true });
+    const Words = getWordsModel(db);
     const flashcard = await Words.findById(req.params.id);
     
     if (!flashcard) {

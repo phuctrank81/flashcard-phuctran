@@ -1,4 +1,5 @@
-const User = require("../../model/user");
+const mongoose = require("mongoose");
+const { getUserModel } = require("../../model/user");
 const bcrypt = require("bcryptjs");
 
 module.exports = async (req, res) => {
@@ -11,6 +12,8 @@ module.exports = async (req, res) => {
     }
 
     // 2. Tìm user
+    const db = mongoose.connection.useDb("users", { useCache: true });
+    const User = getUserModel(db);
     const user = await User.findOne({ email });
     if (!user) {
       return res.status(401).json({ message: "Sai email hoặc mật khẩu" });

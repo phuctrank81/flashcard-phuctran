@@ -1,6 +1,7 @@
 const bcrypt = require("bcryptjs");
 const crypto = require("crypto");
-const User = require("../../model/user");
+const mongoose = require("mongoose");
+const { getUserModel } = require("../../model/user");
 const { sendVerificationEmail } = require("../../utils/emailService");
 
 module.exports = async (req, res) => {
@@ -24,6 +25,8 @@ module.exports = async (req, res) => {
     }
 
     // Check existing user
+    const db = mongoose.connection.useDb("users", { useCache: true });
+    const User = getUserModel(db);
     const existingUser = await User.findOne({ email });
     if (existingUser) {
       return res.status(400).json({ message: "Email đã tồn tại" });

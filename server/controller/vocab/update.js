@@ -1,7 +1,10 @@
-const Words = require("../../model/words.js");
+const mongoose = require("mongoose");
+const { getWordsModel } = require("../../model/words.js");
 
 module.exports = async (req, res) => {
   try {
+    const db = mongoose.connection.useDb("words", { useCache: true });
+    const Words = getWordsModel(db);
     const vocab = await Words.findByIdAndUpdate(
       req.params.id,
       req.body,
