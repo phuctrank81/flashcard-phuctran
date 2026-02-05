@@ -1,6 +1,3 @@
-"use client";
-
-import { useEffect, useState } from "react";
 import Header from "@/components/header";
 import Footer from "@/components/footer";
 
@@ -11,36 +8,27 @@ type Flashcard = {
   example?: string;
 };
 
-export default function FlashcardsPage() {
-  const [words, setWords] = useState<Flashcard[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+export default async function FlashcardsPage() {
+  const baseUrl =
+    process.env.NEXT_PUBLIC_API_URL ||
+    process.env.NEXTAUTH_URL ||
+    "http://localhost:3000";
 
-useEffect(() => {
-  const fetchWords = async () => {
-    try {
-      const apiBase = process.env.NEXT_PUBLIC_API_URL || "";
+  let words: Flashcard[] = [];
+  let error: string | null = null;
 
-      const res = await fetch(`${apiBase}/api/vocab`, {
-        method: "GET",
-      });
+  try {
+    const res = await fetch(`${baseUrl}/api/vocab`, {
+      next: { revalidate: 60 },
+    });
 
-      if (!res.ok) throw new Error("Failed to fetch");
+    if (!res.ok) throw new Error("Failed to fetch");
 
-      const data: Flashcard[] = await res.json();
-      setWords(data);
-    } catch (err) {
-      console.error(err);
-      setError("Không lấy được dữ liệu");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  fetchWords();
-}, []);
-
-
+    words = await res.json();
+  } catch (err) {
+    console.error(err);
+    error = "KhĂ´ng láº¥y Ä‘Æ°á»£c dá»¯ liá»‡u";
+  }
 
   return (
     <div className="min-h-screen flex flex-col bg-white">
@@ -51,20 +39,13 @@ useEffect(() => {
           IELTS Vocabulary Flashcards
         </h1>
 
-        {loading && (
-          <div className="flex justify-center items-center py-10">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600" />
-            <p className="ml-3 text-slate-600">Đang tải từ vựng...</p>
-          </div>
-        )}
-
         {error && (
           <div className="p-4 bg-red-50 border border-red-200 text-red-600 rounded-lg text-center">
             {error}
           </div>
         )}
 
-        {!loading && !error && (
+        {!error && (
           <div className="grid gap-6">
             {words.length > 0 ? (
               words.map((item) => (
@@ -77,7 +58,7 @@ useEffect(() => {
                   </h2>
 
                   <p className="text-slate-700 mb-1">
-                    <b>Nghĩa:</b> {item.definition}
+                    <b>NghÄ©a:</b> {item.definition}
                   </p>
 
                   {item.example && (
@@ -89,7 +70,7 @@ useEffect(() => {
               ))
             ) : (
               <p className="text-center text-slate-500 py-10">
-                Chưa có từ vựng nào
+                ChÆ°a cĂ³ tá»« vá»±ng nĂ o
               </p>
             )}
           </div>

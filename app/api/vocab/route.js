@@ -15,7 +15,9 @@ exports.GET = async () => {
   try {
     const db = await connectDB(process.env.MONGODB_URI, "words");
     const Words = getWordsModel(db);
-    const flashcards = await Words.find();
+    const flashcards = await Words.find()
+      .select("word definition example")
+      .lean();
     return jsonResponse(flashcards);
   } catch (error) {
     return errorResponse("Server error", 500, error.message);
