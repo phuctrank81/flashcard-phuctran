@@ -15,6 +15,7 @@ exports.GET = async () => {
   try {
     const db = await connectDB(process.env.MONGODB_URI, "words");
     const Words = getWordsModel(db);
+    console.log("[vocab] db:", db.name, "collection:", Words.collection.name);
     const flashcards = await Words.find();
     return jsonResponse(flashcards);
   } catch (error) {
@@ -26,6 +27,7 @@ exports.POST = async (request) => {
   try {
     const db = await connectDB(process.env.MONGODB_URI, "words");
     const Words = getWordsModel(db);
+    console.log("[vocab] db:", db.name, "collection:", Words.collection.name);
     const { word, definition, example } = await request.json();
 
     if (!word || !definition) {
