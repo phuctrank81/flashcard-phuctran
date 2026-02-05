@@ -18,11 +18,6 @@ export default function Header() {
     }
   }, [])
 
-  const handleLogout = () => {
-    localStorage.removeItem("user")
-    localStorage.removeItem("token")
-    setUsername(null)
-  }
 
   return (
     <header className="bg-white border-b border-slate-200 sticky top-0 z-40 shadow-sm">
@@ -43,18 +38,9 @@ export default function Header() {
             Quiz Game
           </Link>
           {username ? (
-            <>
-              <span className="text-slate-700 font-semibold">
-                Profile: {username}
-              </span>
-              <button
-                type="button"
-                onClick={handleLogout}
-                className="text-slate-700 hover:text-red-600 font-semibold transition-colors"
-              >
-                Logout
-              </button>
-            </>
+            <span className="text-slate-700 font-semibold">
+              Profile: {username}
+            </span>
           ) : (
             <Link href="/login" className="text-slate-700 hover:text-indigo-600 font-semibold transition-colors">
               Login
