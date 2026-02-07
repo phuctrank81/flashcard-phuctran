@@ -444,7 +444,7 @@ export default function TopicQuizPage() {
               <p className="text-xl text-slate-600">Bạn đã làm rất tốt!</p>
             </div>
 
-            <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-2xl p-8 mb-8">
+            <div className="bg-linear-to-br from-purple-50 to-pink-50 rounded-2xl p-8 mb-8">
               <div className="text-center mb-6">
                 <div className="text-7xl font-black text-purple-600 mb-2">{score}</div>
                 <p className="text-slate-600 text-lg">điểm</p>
@@ -457,7 +457,7 @@ export default function TopicQuizPage() {
                 </div>
                 <div className="w-full bg-slate-200 rounded-full h-3">
                   <div
-                    className="bg-gradient-to-r from-purple-500 to-pink-500 h-3 rounded-full transition-all duration-1000"
+                    className="bg-linear-to-r from-purple-500 to-pink-500 h-3 rounded-full transition-all duration-1000"
                     style={{ width: `${percentage}%` }}
                   ></div>
                 </div>
