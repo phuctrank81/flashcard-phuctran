@@ -70,9 +70,15 @@ export default async function FlashcardsPage() {
                 </div>
               ))
             ) : (
-              <p className="text-center text-slate-500 py-10">
-                Chưa có từ vựng nào
-              </p>
+              <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50 p-10 text-center">
+                <div className="text-5xl">📚</div>
+                <h2 className="mt-4 text-xl font-bold text-slate-800">
+                  Chưa có từ vựng nào
+                </h2>
+                <p className="mt-2 text-slate-600">
+                  Hãy thêm từ mới để bắt đầu học flashcards.
+                </p>
+              </div>
             )}
           </div>
         )}
