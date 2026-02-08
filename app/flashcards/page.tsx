@@ -59,7 +59,7 @@ export default async function FlashcardsPage() {
                   </h2>
 
                   <p className="text-slate-700 mb-1">
-                    <b>Nghĩa:</b> {item.definition}
+                    <b>Definition:</b> {item.definition}
                   </p>
 
                   {item.example && (
