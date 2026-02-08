@@ -71,7 +71,7 @@ export default async function FlashcardsPage() {
               ))
             ) : (
               <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50 p-10 text-center">
-                <div className="text-5xl">📚</div>
+                <div className="text-5xl"></div>
                 <h2 className="mt-4 text-xl font-bold text-slate-800">
                   Chưa có từ vựng nào
                 </h2>
