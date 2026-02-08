@@ -1,4 +1,4 @@
-const { NextResponse } = require("next/server");
+﻿const { NextResponse } = require("next/server");
 const bcrypt = require("bcryptjs");
 const connectDB = require("../../../../lib/mongodb");
 const { getUserModel } = require("../../../../server/model/user");
@@ -14,7 +14,7 @@ const errorResponse = (message, status = 500, error) =>
 
 exports.POST = async (request) => {
   try {
-    const db = await connectDB(process.env.MONGODB_URI, "users");
+    const db = await connectDB(process.env.MONGODB_URI);
     const User = getUserModel(db);
     console.log("[auth.login] db:", db.name, "collection:", User.collection.name);
     const { email, password } = await request.json();
