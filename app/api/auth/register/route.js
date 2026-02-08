@@ -16,7 +16,7 @@ const errorResponse = (message, status = 500, error) =>
 
 exports.POST = async (request) => {
   try {
-    const db = await connectDB(process.env.MONGODB_URI);
+    const db = await connectDB(process.env.MONGODB_URI, "users");
     const User = getUserModel(db);
     console.log("[auth.register] db:", db.name, "collection:", User.collection.name);
     const { username, email, password } = await request.json();
