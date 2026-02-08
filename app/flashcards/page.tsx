@@ -1,41 +1,35 @@
-import Header from "@/components/header";
-import Footer from "@/components/footer";
-import { headers } from "next/headers";
-
-type Flashcard = {
-  _id: string;
-  word: string;
-  definition: string;
-  example?: string;
-};
+import Header from "@/components/header"
+import Footer from "@/components/footer"
+import { headers } from "next/headers"
+import FlashcardsClient, { type Flashcard } from "./flashcards-client"
 
 export default async function FlashcardsPage() {
-  const headerList = await headers();
-  const host = headerList.get("x-forwarded-host") || headerList.get("host") || "localhost:3000";
-  const protocol = headerList.get("x-forwarded-proto") || "http";
-  const baseUrl = `${protocol}://${host}`;
+  const headerList = await headers()
+  const host = headerList.get("x-forwarded-host") || headerList.get("host") || "localhost:3000"
+  const protocol = headerList.get("x-forwarded-proto") || "http"
+  const baseUrl = `${protocol}://${host}`
 
-  let words: Flashcard[] = [];
-  let error: string | null = null;
+  let words: Flashcard[] = []
+  let error: string | null = null
 
   try {
     const res = await fetch(`${baseUrl}/api/vocab`, {
       next: { revalidate: 60 },
-    });
+    })
 
-    if (!res.ok) throw new Error("Failed to fetch");
+    if (!res.ok) throw new Error("Failed to fetch")
 
-    words = await res.json();
+    words = await res.json()
   } catch (err) {
-    console.error(err);
-    error = "Không lấy được từ vựng";
+    console.error(err)
+    error = "Kh�ng l?y ��?c t? v?ng"
   }
 
   return (
     <div className="min-h-screen flex flex-col bg-white">
       <Header />
 
-      <main className="flex-1 px-4 py-8 max-w-3xl mx-auto w-full">
+      <main className="flex-1 px-4 py-8 max-w-4xl mx-auto w-full">
         <h1 className="text-2xl font-bold mb-6 text-center text-slate-800">
           IELTS Vocabulary Flashcards
         </h1>
@@ -46,39 +40,10 @@ export default async function FlashcardsPage() {
           </div>
         )}
 
-        {!error && (
-          <div className="grid gap-6">
-            {words.length > 0 ? (
-              words.map((item) => (
-                <div
-                  key={item._id}
-                  className="p-6 bg-white rounded-2xl shadow-sm border"
-                >
-                  <h2 className="text-2xl font-bold text-blue-600 mb-2">
-                    {item.word}
-                  </h2>
-
-                  <p className="text-slate-700 mb-1">
-                    <b>Nghĩa:</b> {item.definition}
-                  </p>
-
-                  {item.example && (
-                    <p className="italic text-slate-500">
-                      {item.example}
-                    </p>
-                  )}
-                </div>
-              ))
-            ) : (
-              <p className="text-center text-slate-500 py-10">
-                Chưa có từ vựng nào
-              </p>
-            )}
-          </div>
-        )}
+        {!error && <FlashcardsClient words={words} />}
       </main>
 
       <Footer />
     </div>
-  );
+  )
 }
