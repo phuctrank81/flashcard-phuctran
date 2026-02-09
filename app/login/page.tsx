@@ -3,7 +3,6 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { signIn } from "next-auth/react";
 import Header from "@/components/header";
 
 export default function LoginPage() {
@@ -64,9 +63,6 @@ export default function LoginPage() {
     }
   };
 
-  const handleGoogleLogin = async () => {
-    await signIn("google", { callbackUrl: "/" });
-  };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === "Enter" && !loading) {
@@ -119,13 +115,6 @@ export default function LoginPage() {
             {loading ? "Đang đăng nhập..." : "Đăng nhập"}
           </button>
 
-          <button
-            onClick={handleGoogleLogin}
-            type="button"
-            className="w-full mt-3 border border-slate-300 hover:border-slate-400 text-slate-700 py-3 rounded-lg font-semibold transition-colors"
-          >
-            Đăng nhập bằng Google
-          </button>
 
 
           <p className="text-center text-sm text-slate-600 mt-4">
