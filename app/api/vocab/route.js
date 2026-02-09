@@ -1,6 +1,6 @@
  const { NextResponse } = require("next/server");
 const connectDB = require("../../../lib/mongodb");
-const { getWordsModel } = require("../../../server/model/words");
+const { getWordsModel } = require("../../../lib/models/words");
 
 const jsonResponse = (data, init = {}) =>
   NextResponse.json(data, init);

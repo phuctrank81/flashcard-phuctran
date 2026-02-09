@@ -2,8 +2,8 @@
 const bcrypt = require("bcryptjs");
 const crypto = require("crypto");
 const connectDB = require("../../../../lib/mongodb");
-const { getUserModel } = require("../../../../server/model/user");
-const { sendVerificationEmail } = require("../../../../server/utils/emailService");
+const { getUserModel } = require("../../../../lib/models/user");
+const { sendVerificationEmail } = require("../../../../lib/emailService");
 
 const jsonResponse = (data, init = {}) =>
   NextResponse.json(data, init);
