@@ -81,6 +81,9 @@ export default function Header() {
           <Link href="/quiz" className="text-slate-700 hover:text-indigo-600 font-semibold transition-colors">
             Quiz Game
           </Link>
+          <Link href="/document" className="text-slate-700 hover:text-indigo-600 font-semibold transition-colors">
+            Document
+          </Link>
           {displayName ? (
             <div ref={menuRef} className="relative">
               <button
