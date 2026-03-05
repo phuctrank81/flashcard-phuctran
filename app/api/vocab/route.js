@@ -1,6 +1,7 @@
- const { NextResponse } = require("next/server");
+const { NextResponse } = require("next/server");
 const connectDB = require("../../../lib/mongodb");
 const { getWordsModel } = require("../../../lib/models/words");
+const { requireAdmin } = require("../../../lib/adminAuth");
 
 const jsonResponse = (data, init = {}) =>
   NextResponse.json(data, init);
@@ -26,6 +27,9 @@ exports.GET = async () => {
 
 exports.POST = async (request) => {
   try {
+    const adminCheck = await requireAdmin(request);
+    if (!adminCheck.ok) return adminCheck.response;
+
     const db = await connectDB(process.env.MONGODB_URI, "words");
     const Words = getWordsModel(db);
     const { word, definition, example } = await request.json();

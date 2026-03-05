@@ -14,6 +14,14 @@ const errorResponse = (message, status = 500, error) =>
     { status }
   );
 
+const getAdminEmails = () =>
+  (process.env.ADMIN_EMAILS || "")
+    .split(",")
+    .map((email) => email.trim().toLowerCase())
+    .filter(Boolean);
+
+const isAdminEmail = (email) => getAdminEmails().includes(email.trim().toLowerCase());
+
 exports.POST = async (request) => {
   try {
     const db = await connectDB(process.env.MONGODB_URI, "users");
@@ -47,6 +55,7 @@ exports.POST = async (request) => {
       username,
       email,
       password: hashedPassword,
+      role: isAdminEmail(email) ? "admin" : "user",
       isVerified: false,
       verificationToken,
       verificationTokenExpiry,
@@ -62,6 +71,7 @@ exports.POST = async (request) => {
           id: newUser._id,
           username: newUser.username,
           email: newUser.email,
+          role: newUser.role,
           isVerified: newUser.isVerified,
         },
         emailSent,

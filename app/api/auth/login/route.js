@@ -39,6 +39,7 @@ exports.POST = async (request) => {
         id: user._id,
         username: user.username,
         email: user.email,
+        role: user.role || "user",
       },
     });
   } catch (error) {

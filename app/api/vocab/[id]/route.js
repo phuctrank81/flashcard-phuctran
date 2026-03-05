@@ -1,6 +1,7 @@
 const { NextResponse } = require("next/server");
 const connectDB = require("../../../../lib/mongodb");
 const { getWordsModel } = require("../../../../lib/models/words");
+const { requireAdmin } = require("../../../../lib/adminAuth");
 
 const jsonResponse = (data, init = {}) =>
   NextResponse.json(data, init);
@@ -30,6 +31,9 @@ exports.GET = async (request, context) => {
 
 exports.PATCH = async (request, context) => {
   try {
+    const adminCheck = await requireAdmin(request);
+    if (!adminCheck.ok) return adminCheck.response;
+
     const db = await connectDB(process.env.MONGODB_URI, "words");
     const Words = getWordsModel(db);
     const { id } = context.params;
@@ -48,6 +52,9 @@ exports.PATCH = async (request, context) => {
 
 exports.DELETE = async (request, context) => {
   try {
+    const adminCheck = await requireAdmin(request);
+    if (!adminCheck.ok) return adminCheck.response;
+
     const db = await connectDB(process.env.MONGODB_URI, "words");
     const Words = getWordsModel(db);
     const { id } = context.params;
