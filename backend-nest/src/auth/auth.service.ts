@@ -16,6 +16,17 @@ export class AuthService {
     private readonly emailService: EmailService,
   ) {}
 
+  private getAdminEmails() {
+    return (process.env.ADMIN_EMAILS || "")
+      .split(",")
+      .map((email) => email.trim().toLowerCase())
+      .filter(Boolean);
+  }
+
+  private isAdminEmail(email: string) {
+    return this.getAdminEmails().includes(email.trim().toLowerCase());
+  }
+
   async register(dto: RegisterDto) {
     const existingUser = await this.userModel.findOne({ email: dto.email });
     if (existingUser) {
@@ -30,6 +41,7 @@ export class AuthService {
       username: dto.username,
       email: dto.email,
       password: hashedPassword,
+      role: this.isAdminEmail(dto.email) ? "admin" : "user",
       isVerified: false,
       verificationToken,
       verificationTokenExpiry,
@@ -47,6 +59,7 @@ export class AuthService {
         id: newUser._id,
         username: newUser.username,
         email: newUser.email,
+        role: newUser.role,
         isVerified: newUser.isVerified,
       },
       emailSent,
@@ -70,6 +83,7 @@ export class AuthService {
         id: user._id,
         username: user.username,
         email: user.email,
+        role: user.role || "user",
       },
     };
   }
@@ -99,6 +113,7 @@ export class AuthService {
         id: user._id,
         username: user.username,
         email: user.email,
+        role: user.role || "user",
         isVerified: user.isVerified,
       },
     };

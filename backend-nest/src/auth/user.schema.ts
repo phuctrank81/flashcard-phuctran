@@ -15,6 +15,9 @@ export class User extends Document {
   @Prop({ default: false })
   isVerified!: boolean;
 
+  @Prop({ type: String, enum: ["user", "admin"], default: "user" })
+  role!: "user" | "admin";
+
   @Prop({ default: null })
   verificationToken?: string | null;
 

@@ -12,6 +12,14 @@ const errorResponse = (message, status = 500, error) =>
     { status }
   );
 
+const getAdminEmails = () =>
+  (process.env.ADMIN_EMAILS || "")
+    .split(",")
+    .map((email) => email.trim().toLowerCase())
+    .filter(Boolean);
+
+const isAdminEmail = (email) => getAdminEmails().includes(String(email || "").trim().toLowerCase());
+
 exports.POST = async (request) => {
   try {
     const db = await connectDB(process.env.MONGODB_URI, "users");
@@ -31,6 +39,11 @@ exports.POST = async (request) => {
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
       return errorResponse("Sai email hoặc mật khẩu", 401);
+    }
+
+    if (isAdminEmail(user.email) && user.role !== "admin") {
+      user.role = "admin";
+      await user.save();
     }
 
     return jsonResponse({
