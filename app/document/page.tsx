@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import { Download, FileText, AlertCircle, Loader } from "lucide-react";
 
 interface DocumentFile {
+  id: string;
   name: string;
   size: number;
   uploadDate: string;
@@ -165,7 +166,7 @@ export default function DocumentPage() {
               <div className="space-y-3">
                 {documents.map((doc) => (
                   <div
-                    key={doc.name}
+                    key={doc.id}
                     className="flex items-center justify-between p-4 bg-white border border-gray-200 rounded-lg hover:shadow-md transition"
                   >
                     <div className="flex items-center gap-3 flex-1">

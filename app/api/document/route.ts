@@ -1,40 +1,30 @@
 import { NextRequest, NextResponse } from 'next/server';
-import fs from 'fs';
-import path from 'path';
+import clientPromise from '@/lib/mongodb-client';
+import { Document } from '@/lib/models/document';
 
-// Thư mục lưu PDF
-const UPLOAD_DIR = path.join(process.cwd(), 'public', 'documents');
-
-// Tạo thư mục nếu chưa tồn tại
-if (!fs.existsSync(UPLOAD_DIR)) {
-  fs.mkdirSync(UPLOAD_DIR, { recursive: true });
-}
-
-// GET: Lấy danh sách PDF
+// GET: Lấy danh sách PDF từ MongoDB
 export async function GET(request: NextRequest) {
   try {
-    const files = fs.readdirSync(UPLOAD_DIR);
-    
-    // Lọc chỉ các file PDF
-    const pdfFiles = files.filter(file => 
-      file.toLowerCase().endsWith('.pdf')
-    ).map(file => {
-      const filePath = path.join(UPLOAD_DIR, file);
-      const stats = fs.statSync(filePath);
-      
-      return {
-        name: file,
-        size: stats.size,
-        uploadDate: stats.mtime,
-        downloadUrl: `/api/document/download?file=${encodeURIComponent(file)}`
-      };
-    });
+    await clientPromise;
+
+    const documents = await Document.find({})
+      .select('fileName size uploadedAt _id')
+      .sort({ uploadedAt: -1 })
+      .lean();
+
+    const files = documents.map(doc => ({
+      id: doc._id.toString(),
+      name: doc.fileName,
+      size: doc.size,
+      uploadDate: doc.uploadedAt,
+      downloadUrl: `/api/document/download?id=${doc._id.toString()}`
+    }));
 
     return NextResponse.json(
       {
         success: true,
-        files: pdfFiles,
-        totalFiles: pdfFiles.length
+        files,
+        totalFiles: files.length
       },
       { status: 200 }
     );
@@ -47,9 +37,11 @@ export async function GET(request: NextRequest) {
   }
 }
 
-// POST: Upload PDF (tùy chọn)
+// POST: Upload PDF lên MongoDB
 export async function POST(request: NextRequest) {
   try {
+    await clientPromise;
+
     const formData = await request.formData();
     const file = formData.get('file') as File;
 
@@ -68,21 +60,39 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Lưu file
+    // Kiểm tra kích thước (giới hạn 50MB)
+    const MAX_SIZE = 50 * 1024 * 1024;
+    if (file.size > MAX_SIZE) {
+      return NextResponse.json(
+        { success: false, error: 'File quá lớn (giới hạn 50MB)' },
+        { status: 400 }
+      );
+    }
+
+    // Chuyển file thành Buffer
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
-    const filePath = path.join(UPLOAD_DIR, file.name);
-    
-    fs.writeFileSync(filePath, buffer);
+
+    // Lưu vào MongoDB
+    const newDocument = new Document({
+      fileName: file.name,
+      fileData: buffer,
+      mimeType: file.type,
+      size: file.size,
+      uploadedAt: new Date(),
+    });
+
+    const savedDoc = await newDocument.save();
 
     return NextResponse.json(
       {
         success: true,
         message: 'Tải file lên thành công',
         file: {
-          name: file.name,
-          size: file.size,
-          downloadUrl: `/api/document/download?file=${encodeURIComponent(file.name)}`
+          id: savedDoc._id.toString(),
+          name: savedDoc.fileName,
+          size: savedDoc.size,
+          downloadUrl: `/api/document/download?id=${savedDoc._id.toString()}`
         }
       },
       { status: 201 }

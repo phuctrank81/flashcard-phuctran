@@ -1,50 +1,46 @@
 import { NextRequest, NextResponse } from 'next/server';
-import fs from 'fs';
-import path from 'path';
-
-const UPLOAD_DIR = path.join(process.cwd(), 'public', 'documents');
+import clientPromise from '@/lib/mongodb-client';
+import { Document } from '@/lib/models/document';
+import { ObjectId } from 'mongodb';
 
 export async function GET(request: NextRequest) {
   try {
-    const searchParams = request.nextUrl.searchParams;
-    const fileName = searchParams.get('file');
+    await clientPromise;
 
-    if (!fileName) {
+    const searchParams = request.nextUrl.searchParams;
+    const fileId = searchParams.get('id');
+
+    if (!fileId) {
       return NextResponse.json(
-        { success: false, error: 'Thiếu tên file' },
+        { success: false, error: 'Thiếu ID file' },
         { status: 400 }
       );
     }
 
-    // Kiểm tra tính hợp lệ của tên file (tránh directory traversal)
-    const decodedFileName = decodeURIComponent(fileName);
-    const filePath = path.normalize(path.join(UPLOAD_DIR, decodedFileName));
-
-    // Đảm bảo file nằm trong thư mục được phép
-    if (!filePath.startsWith(UPLOAD_DIR)) {
+    // Kiểm tra ID hợp lệ
+    if (!ObjectId.isValid(fileId)) {
       return NextResponse.json(
-        { success: false, error: 'Truy cập không hợp lệ' },
-        { status: 403 }
+        { success: false, error: 'ID file không hợp lệ' },
+        { status: 400 }
       );
     }
 
-    // Kiểm tra file tồn tại
-    if (!fs.existsSync(filePath)) {
+    // Tìm file trong MongoDB
+    const document = await Document.findById(fileId);
+
+    if (!document) {
       return NextResponse.json(
         { success: false, error: 'File không tìm thấy' },
         { status: 404 }
       );
     }
 
-    // Đọc file
-    const fileBuffer = fs.readFileSync(filePath);
-    
-    // Trả về file với headers để download
-    return new NextResponse(fileBuffer, {
+    // Trả về file
+    return new NextResponse(document.fileData, {
       headers: {
-        'Content-Type': 'application/pdf',
-        'Content-Disposition': `attachment; filename="${decodedFileName}"`,
-        'Content-Length': fileBuffer.length.toString(),
+        'Content-Type': document.mimeType || 'application/pdf',
+        'Content-Disposition': `attachment; filename="${document.fileName}"`,
+        'Content-Length': document.size.toString(),
       },
     });
   } catch (error) {
