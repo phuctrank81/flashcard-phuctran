@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import clientPromise from '@/lib/mongodb-client';
-import { Document } from '@/lib/models/document';
+import { PDFDocument } from '@/lib/models/document';
 import { ObjectId } from 'mongodb';
 
 export async function GET(request: NextRequest) {
@@ -26,7 +26,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Tìm file trong MongoDB
-    const document = await Document.findById(fileId);
+    const document = await PDFDocument.findById(fileId);
 
     if (!document) {
       return NextResponse.json(

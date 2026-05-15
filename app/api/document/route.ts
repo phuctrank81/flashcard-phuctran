@@ -1,13 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import clientPromise from '@/lib/mongodb-client';
-import { Document } from '@/lib/models/document';
+import { PDFDocument } from '@/lib/models/document';
 
 // GET: Lấy danh sách PDF từ MongoDB
 export async function GET(request: NextRequest) {
   try {
     await clientPromise;
 
-    const documents = await Document.find({})
+    const documents = await PDFDocument.find({})
       .select('fileName size uploadedAt _id')
       .sort({ uploadedAt: -1 })
       .lean();
@@ -74,7 +74,7 @@ export async function POST(request: NextRequest) {
     const buffer = Buffer.from(bytes);
 
     // Lưu vào MongoDB
-    const newDocument = new Document({
+    const newDocument = new PDFDocument({
       fileName: file.name,
       fileData: buffer,
       mimeType: file.type,

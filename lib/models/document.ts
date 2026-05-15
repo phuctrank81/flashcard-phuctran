@@ -1,6 +1,6 @@
 import mongoose, { Schema, Document } from 'mongoose';
 
-export interface IDocument extends Document {
+export interface IPDFDocument extends Document {
   fileName: string;
   fileData: Buffer;
   mimeType: string;
@@ -41,4 +41,4 @@ const DocumentSchema = new Schema({
 DocumentSchema.index({ fileName: 1 });
 DocumentSchema.index({ uploadedAt: -1 });
 
-export const Document = mongoose.models.Document || mongoose.model<IDocument>('Document', DocumentSchema);
+export const PDFDocument = mongoose.models.PDFDocument || mongoose.model<IPDFDocument>('PDFDocument', DocumentSchema);
