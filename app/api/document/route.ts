@@ -1,30 +1,41 @@
 import { NextRequest, NextResponse } from 'next/server';
 import clientPromise from '@/lib/mongodb-client';
 import { PDFDocument } from '@/lib/models/document';
+import { getServerSession } from 'next-auth/next';
 
-// GET: Lấy danh sách PDF từ MongoDB
+// GET: Lấy danh sách PDF từ MongoDB (grouped by category)
 export async function GET(request: NextRequest) {
   try {
     await clientPromise;
 
     const documents = await PDFDocument.find({})
-      .select('fileName size uploadedAt _id')
-      .sort({ uploadedAt: -1 })
+      .select('fileName size uploadedAt uploadedBy category _id')
+      .sort({ category: 1, uploadedAt: -1 })
       .lean();
 
-    const files = documents.map(doc => ({
-      id: doc._id.toString(),
-      name: doc.fileName,
-      size: doc.size,
-      uploadDate: doc.uploadedAt,
-      downloadUrl: `/api/document/download?id=${doc._id.toString()}`
-    }));
+    // Group by category
+    const groupedFiles: { [key: string]: any[] } = {};
+    documents.forEach(doc => {
+      const category = doc.category || 'IELTS';
+      if (!groupedFiles[category]) {
+        groupedFiles[category] = [];
+      }
+      groupedFiles[category].push({
+        id: doc._id.toString(),
+        name: doc.fileName,
+        size: doc.size,
+        uploadDate: doc.uploadedAt,
+        uploadedBy: doc.uploadedBy,
+        category: doc.category,
+        downloadUrl: `/api/document/download?id=${doc._id.toString()}`
+      });
+    });
 
     return NextResponse.json(
       {
         success: true,
-        files,
-        totalFiles: files.length
+        files: groupedFiles,
+        categories: Object.keys(groupedFiles)
       },
       { status: 200 }
     );
@@ -37,13 +48,24 @@ export async function GET(request: NextRequest) {
   }
 }
 
-// POST: Upload PDF lên MongoDB
+// POST: Upload PDF lên MongoDB (Admin & User)
 export async function POST(request: NextRequest) {
   try {
+    // Kiểm tra xem user đã login chưa
+    const session = await getServerSession();
+    
+    if (!session || !session.user) {
+      return NextResponse.json(
+        { success: false, error: 'Vui lòng đăng nhập để tải file lên' },
+        { status: 401 }
+      );
+    }
+
     await clientPromise;
 
     const formData = await request.formData();
     const file = formData.get('file') as File;
+    const category = (formData.get('category') as string) || 'IELTS';
 
     if (!file) {
       return NextResponse.json(
@@ -79,7 +101,9 @@ export async function POST(request: NextRequest) {
       fileData: buffer,
       mimeType: file.type,
       size: file.size,
+      category,
       uploadedAt: new Date(),
+      uploadedBy: session.user.email || session.user.name || 'Unknown',
     });
 
     const savedDoc = await newDocument.save();
@@ -101,6 +125,57 @@ export async function POST(request: NextRequest) {
     console.error('Error uploading file:', error);
     return NextResponse.json(
       { success: false, error: 'Lỗi khi tải file lên' },
+      { status: 500 }
+    );
+  }
+}
+
+// DELETE: Xóa PDF (chỉ Admin)
+export async function DELETE(request: NextRequest) {
+  try {
+    const session = await getServerSession();
+    
+    if (!session || !session.user) {
+      return NextResponse.json(
+        { success: false, error: 'Vui lòng đăng nhập' },
+        { status: 401 }
+      );
+    }
+
+    // Kiểm tra xem user có phải admin không
+    // Giả sử admin email hoặc role cụ thể
+    const isAdmin = session.user.email === 'admin@example.com' || 
+                    (session.user as any).role === 'admin';
+
+    if (!isAdmin) {
+      return NextResponse.json(
+        { success: false, error: 'Chỉ admin có quyền xóa file' },
+        { status: 403 }
+      );
+    }
+
+    await clientPromise;
+
+    const searchParams = request.nextUrl.searchParams;
+    const fileId = searchParams.get('id');
+
+    if (!fileId) {
+      return NextResponse.json(
+        { success: false, error: 'Thiếu ID file' },
+        { status: 400 }
+      );
+    }
+
+    await PDFDocument.findByIdAndDelete(fileId);
+
+    return NextResponse.json(
+      { success: true, message: 'Xóa file thành công' },
+      { status: 200 }
+    );
+  } catch (error) {
+    console.error('Error deleting file:', error);
+    return NextResponse.json(
+      { success: false, error: 'Lỗi khi xóa file' },
       { status: 500 }
     );
   }
