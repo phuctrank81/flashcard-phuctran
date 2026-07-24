@@ -3,7 +3,7 @@
 import Header from "@/components/header";
 import Footer from "@/components/footer";
 import { useEffect, useState } from "react";
-import { Download, FileText, AlertCircle, Loader, RefreshCw, Eye, X, ExternalLink } from "lucide-react";
+import { Download, FileText, AlertCircle, Loader, RefreshCw, Eye, X, ExternalLink, Upload } from "lucide-react";
 
 interface DocumentFile {
   id: string;
@@ -15,6 +15,11 @@ interface DocumentFile {
   downloadUrl: string;
 }
 
+interface CurrentUser {
+  email?: string;
+  role?: string;
+}
+
 export default function DocumentPage() {
   const [documents, setDocuments] = useState<{ [key: string]: DocumentFile[] }>({});
   const [categories, setCategories] = useState<string[]>([]);
@@ -22,9 +27,21 @@ export default function DocumentPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [previewDoc, setPreviewDoc] = useState<DocumentFile | null>(null);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [uploadCategory, setUploadCategory] = useState('IELTS');
+  const [uploading, setUploading] = useState(false);
+  const [uploadMessage, setUploadMessage] = useState<string | null>(null);
+  const [currentUser, setCurrentUser] = useState<CurrentUser | null>(null);
+  const isAdmin = currentUser?.role === 'admin';
 
   useEffect(() => {
     fetchDocuments();
+    try {
+      const savedUser = localStorage.getItem('user');
+      if (savedUser) setCurrentUser(JSON.parse(savedUser));
+    } catch {
+      setCurrentUser(null);
+    }
   }, []);
 
   // Đóng modal khi nhấn Escape
@@ -83,6 +100,47 @@ export default function DocumentPage() {
       case 'IELTS': return '🎯 IELTS';
       case 'TOEIC': return '📝 TOEIC';
       default: return cat;
+    }
+  };
+
+  const handleUpload = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (!selectedFile) {
+      setUploadMessage('Vui lòng chọn một file PDF.');
+      return;
+    }
+
+    if (selectedFile.type !== 'application/pdf') {
+      setUploadMessage('Chỉ chấp nhận file PDF.');
+      return;
+    }
+
+    try {
+      setUploading(true);
+      setUploadMessage(null);
+      const formData = new FormData();
+      formData.append('file', selectedFile);
+      formData.append('category', uploadCategory);
+
+      const response = await fetch('/api/document', {
+        method: 'POST',
+        headers: { 'x-admin-email': currentUser?.email || '' },
+        body: formData,
+      });
+      const data = await response.json();
+
+      if (!response.ok || !data.success) {
+        throw new Error(data.error || 'Không thể tải file lên.');
+      }
+
+      setSelectedFile(null);
+      setUploadMessage('Tải file lên thành công.');
+      await fetchDocuments();
+      setActiveCategory(uploadCategory);
+    } catch (err) {
+      setUploadMessage(err instanceof Error ? err.message : 'Lỗi khi tải file lên.');
+    } finally {
+      setUploading(false);
     }
   };
 
@@ -177,6 +235,53 @@ export default function DocumentPage() {
                 </button>
               </div>
             </div>
+          )}
+
+          {/* Upload PDF (admin only) */}
+          {isAdmin && (
+          <section className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
+            <div className="mb-4 flex items-center gap-2">
+              <Upload className="h-5 w-5 text-blue-600" />
+              <h2 className="text-xl font-bold text-gray-900">Tải tài liệu PDF lên</h2>
+            </div>
+            <form onSubmit={handleUpload} className="flex flex-col gap-3 sm:flex-row sm:items-end">
+              <label className="flex flex-1 flex-col gap-1 text-sm font-medium text-gray-700">
+                File PDF
+                <input
+                  type="file"
+                  accept="application/pdf,.pdf"
+                  onChange={(event) => setSelectedFile(event.target.files?.[0] ?? null)}
+                  className="block w-full rounded-lg border border-gray-300 p-2 text-sm file:mr-3 file:rounded-md file:border-0 file:bg-blue-50 file:px-3 file:py-1.5 file:text-blue-700 hover:file:bg-blue-100"
+                  required
+                />
+              </label>
+              <label className="flex flex-col gap-1 text-sm font-medium text-gray-700">
+                Danh mục
+                <select
+                  value={uploadCategory}
+                  onChange={(event) => setUploadCategory(event.target.value)}
+                  className="rounded-lg border border-gray-300 px-3 py-2 text-sm"
+                >
+                  <option value="IELTS">IELTS</option>
+                  <option value="TOEIC">TOEIC</option>
+                </select>
+              </label>
+              <button
+                type="submit"
+                disabled={uploading}
+                className="flex items-center justify-center gap-2 rounded-lg bg-blue-500 px-4 py-2 text-sm font-semibold text-white transition hover:bg-blue-600 disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {uploading ? <Loader className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
+                {uploading ? 'Đang tải...' : 'Tải lên'}
+              </button>
+            </form>
+            {uploadMessage && (
+              <p className={`mt-3 text-sm ${uploadMessage === 'Tải file lên thành công.' ? 'text-green-600' : 'text-red-600'}`}>
+                {uploadMessage}
+              </p>
+            )}
+            <p className="mt-2 text-xs text-gray-500">Chỉ hỗ trợ PDF, dung lượng tối đa 50 MB.</p>
+          </section>
           )}
 
           {/* Documents List */}
