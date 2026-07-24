@@ -9,21 +9,24 @@ export async function GET() {
     await clientPromise;
 
     const documents = await PDFDocument.find({})
-      .select('fileName size uploadedAt uploadedBy category _id')
-      .sort({ category: 1, uploadedAt: -1 })
+      .select('fileName size uploadedAt uploadedBy category series _id')
+      .sort({ category: 1, series: 1, uploadedAt: -1 })
       .lean();
 
-    const groupedFiles: { [key: string]: unknown[] } = {};
+    const groupedFiles: { [key: string]: { [key: string]: unknown[] } } = {};
     documents.forEach((doc) => {
       const category = doc.category || 'IELTS';
-      if (!groupedFiles[category]) groupedFiles[category] = [];
-      groupedFiles[category].push({
+      if (!groupedFiles[category]) groupedFiles[category] = {};
+      const series = doc.series || (category === 'IELTS' ? 'Tài liệu IELTS khác' : 'Tài liệu TOEIC');
+      if (!groupedFiles[category][series]) groupedFiles[category][series] = [];
+      groupedFiles[category][series].push({
         id: doc._id.toString(),
         name: doc.fileName,
         size: doc.size,
         uploadDate: doc.uploadedAt,
         uploadedBy: doc.uploadedBy,
         category: doc.category,
+        series,
         downloadUrl: `/api/document/download?id=${doc._id.toString()}`,
       });
     });
@@ -52,6 +55,7 @@ export async function POST(request: NextRequest) {
     const formData = await request.formData();
     const file = formData.get('file');
     const category = (formData.get('category') as string) || 'IELTS';
+    const series = (formData.get('series') as string)?.trim() || (category === 'IELTS' ? 'IELTS Cambridge' : 'Tài liệu TOEIC');
 
     if (!(file instanceof File)) {
       return NextResponse.json(
@@ -81,6 +85,7 @@ export async function POST(request: NextRequest) {
       mimeType: file.type,
       size: file.size,
       category,
+      series,
       uploadedAt: new Date(),
       uploadedBy: adminCheck.user.email,
     });

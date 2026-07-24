@@ -6,6 +6,7 @@ export interface IPDFDocument extends Document {
   mimeType: string;
   size: number;
   category: 'IELTS' | 'TOEIC';
+  series?: string;
   uploadedAt: Date;
   uploadedBy?: string;
 }
@@ -34,6 +35,11 @@ const DocumentSchema = new Schema({
     default: 'IELTS',
     required: true,
   },
+  series: {
+    type: String,
+    trim: true,
+    default: '',
+  },
   uploadedAt: {
     type: Date,
     default: Date.now,
@@ -48,5 +54,6 @@ const DocumentSchema = new Schema({
 DocumentSchema.index({ fileName: 1 });
 DocumentSchema.index({ uploadedAt: -1 });
 DocumentSchema.index({ category: 1 });
+DocumentSchema.index({ category: 1, series: 1 });
 
 export const PDFDocument = mongoose.models.PDFDocument || mongoose.model<IPDFDocument>('PDFDocument', DocumentSchema);
