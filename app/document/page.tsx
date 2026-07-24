@@ -51,7 +51,7 @@ export default function DocumentPage() {
   const currentDocs = activeSeries ? seriesGroups[activeSeries] || [] : [];
 
   return (
-    <div className="flex min-h-screen flex-col">
+    <div className="min-h-screen flex flex-col">
       <Header />
 
       {previewDoc && (
