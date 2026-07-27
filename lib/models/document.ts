@@ -2,7 +2,7 @@ import mongoose, { Schema, Document } from 'mongoose';
 
 export interface IPDFDocument extends Document {
   fileName: string;
-  fileData: Buffer;
+  s3Key: string;
   mimeType: string;
   size: number;
   category: 'IELTS' | 'TOEIC';
@@ -17,9 +17,11 @@ const DocumentSchema = new Schema({
     required: true,
     trim: true,
   },
-  fileData: {
-    type: Buffer,
+  s3Key: {
+    type: String,
     required: true,
+    unique: true,
+    trim: true,
   },
   mimeType: {
     type: String,
@@ -52,6 +54,7 @@ const DocumentSchema = new Schema({
 
 // Tạo index để tìm kiếm nhanh
 DocumentSchema.index({ fileName: 1 });
+DocumentSchema.index({ s3Key: 1 }, { unique: true });
 DocumentSchema.index({ uploadedAt: -1 });
 DocumentSchema.index({ category: 1 });
 DocumentSchema.index({ category: 1, series: 1 });

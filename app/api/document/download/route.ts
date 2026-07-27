@@ -1,46 +1,34 @@
 import { NextRequest, NextResponse } from 'next/server';
-import clientPromise from '@/lib/mongodb-client';
-import { PDFDocument } from '@/lib/models/document';
-import { ObjectId } from 'mongodb';
+import { GetObjectCommand } from '@aws-sdk/client-s3';
+import { s3, s3Bucket } from '@/lib/s3';
 
 export async function GET(request: NextRequest) {
   try {
-    await clientPromise;
+    const key = request.nextUrl.searchParams.get('key');
 
-    const searchParams = request.nextUrl.searchParams;
-    const fileId = searchParams.get('id');
-
-    if (!fileId) {
+    if (!key) {
       return NextResponse.json(
-        { success: false, error: 'Thiếu ID file' },
+        { success: false, error: 'Thiếu S3 object key' },
         { status: 400 }
       );
     }
 
-    // Kiểm tra ID hợp lệ
-    if (!ObjectId.isValid(fileId)) {
-      return NextResponse.json(
-        { success: false, error: 'ID file không hợp lệ' },
-        { status: 400 }
-      );
+    const response = await s3.send(new GetObjectCommand({
+      Bucket: s3Bucket,
+      Key: key,
+    }));
+
+    if (!response.Body) {
+      throw new Error('S3 returned an empty file body');
     }
 
-    // Tìm file trong MongoDB
-    const document = await PDFDocument.findById(fileId);
+    const fileName = decodeURIComponent(key.split('/').pop() || 'document.pdf');
 
-    if (!document) {
-      return NextResponse.json(
-        { success: false, error: 'File không tìm thấy' },
-        { status: 404 }
-      );
-    }
-
-    // Trả về file
-    return new NextResponse(document.fileData, {
+    return new NextResponse(response.Body.transformToWebStream(), {
       headers: {
-        'Content-Type': document.mimeType || 'application/pdf',
-        'Content-Disposition': `attachment; filename="${document.fileName}"`,
-        'Content-Length': document.size.toString(),
+        'Content-Type': response.ContentType || 'application/pdf',
+        'Content-Disposition': `inline; filename="${fileName}"`,
+        ...(response.ContentLength ? { 'Content-Length': response.ContentLength.toString() } : {}),
       },
     });
   } catch (error) {

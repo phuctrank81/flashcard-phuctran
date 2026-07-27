@@ -13,30 +13,85 @@ type DocumentFile = {
 
 type DocumentCatalog = Record<string, Record<string, DocumentFile[]>>;
 
-// Thêm PDF vào public/documents rồi khai báo tại đây.
-// Ví dụ: public/documents/ielts/cambridge/ielts-cambridge-14.pdf
-const DOCUMENT_CATALOG: DocumentCatalog = {
-  IELTS: {
-    'IELTS Cambridge': [
-      {
-        id: 'ielts-cambridge-14',
-        name: 'IELTS Cambridge 14',
-        downloadUrl: '/documents/ielts/cambridge/ielts-cambridge-14.pdf',
-      },
-      {
-        id: 'ielts-cambridge-13',
-        name: 'IELTS Cambridge 13',
-        downloadUrl: '/documents/ielts/cambridge/ielts-cambridge-13.pdf',
-      },
-    ],
-  },
-  TOEIC: {},
+type CurrentUser = {
+  email?: string;
+  role?: string;
 };
 
 export default function DocumentPage() {
   const [activeCategory, setActiveCategory] = useState('IELTS');
   const [activeSeries, setActiveSeries] = useState<string | null>(null);
   const [previewDoc, setPreviewDoc] = useState<DocumentFile | null>(null);
+  const [catalog, setCatalog] = useState<DocumentCatalog>({ IELTS: {}, TOEIC: {} });
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const [currentUser, setCurrentUser] = useState<CurrentUser | null>(null);
+  const [uploadFile, setUploadFile] = useState<File | null>(null);
+  const [uploadCategory, setUploadCategory] = useState<'IELTS' | 'TOEIC'>('IELTS');
+  const [uploadSeries, setUploadSeries] = useState('');
+  const [uploading, setUploading] = useState(false);
+
+  useEffect(() => {
+    const loadDocuments = async () => {
+      try {
+        const response = await fetch('/api/document');
+        const data = await response.json();
+        if (!response.ok || !data.success) throw new Error(data.error || 'Could not load documents');
+        setCatalog({ IELTS: {}, TOEIC: {}, ...data.files });
+      } catch (error) {
+        setError(error instanceof Error ? error.message : 'Could not load documents');
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadDocuments();
+  }, []);
+
+  useEffect(() => {
+    const rawUser = localStorage.getItem('user');
+    if (!rawUser) return;
+    try {
+      setCurrentUser(JSON.parse(rawUser));
+    } catch {
+      localStorage.removeItem('user');
+    }
+  }, []);
+
+  const uploadDocument = async () => {
+    if (!uploadFile) {
+      setError('Please choose a PDF file.');
+      return;
+    }
+
+    try {
+      setUploading(true);
+      setError('');
+      const formData = new FormData();
+      formData.append('file', uploadFile);
+      formData.append('category', uploadCategory);
+      formData.append('series', uploadSeries);
+      const response = await fetch('/api/document', {
+        method: 'POST',
+        headers: { 'x-admin-email': currentUser?.email || '' },
+        body: formData,
+      });
+      const data = await response.json();
+      if (!response.ok || !data.success) throw new Error(data.error || 'Could not upload document');
+
+      setUploadFile(null);
+      setUploadSeries('');
+      const input = document.getElementById('document-upload') as HTMLInputElement | null;
+      if (input) input.value = '';
+      const listResponse = await fetch('/api/document');
+      const listData = await listResponse.json();
+      if (!listResponse.ok || !listData.success) throw new Error(listData.error || 'Could not refresh documents');
+      setCatalog({ IELTS: {}, TOEIC: {}, ...listData.files });
+    } catch (error) {
+      setError(error instanceof Error ? error.message : 'Could not upload document');
+    } finally {
+      setUploading(false);
+    }
+  };
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -46,7 +101,7 @@ export default function DocumentPage() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
-  const seriesGroups = DOCUMENT_CATALOG[activeCategory] || {};
+  const seriesGroups = catalog[activeCategory] || {};
   const seriesNames = Object.keys(seriesGroups);
   const currentDocs = activeSeries ? seriesGroups[activeSeries] || [] : [];
 
@@ -74,15 +129,36 @@ export default function DocumentPage() {
         <h1 className="mb-2 text-4xl font-bold text-gray-900">Tài liệu</h1>
         <p className="mb-8 text-gray-600">Tài liệu ôn tập IELTS và TOEIC</p>
 
+        {currentUser?.role === 'admin' && (
+          <section className="mb-8 rounded-xl border border-blue-200 bg-blue-50 p-5">
+            <h2 className="mb-4 text-lg font-bold text-gray-900">Upload PDF to S3</h2>
+            <div className="grid gap-3 md:grid-cols-3">
+              <input id="document-upload" type="file" accept="application/pdf" onChange={(event) => setUploadFile(event.target.files?.[0] || null)} className="rounded-lg border border-gray-300 bg-white px-3 py-2" />
+              <select value={uploadCategory} onChange={(event) => setUploadCategory(event.target.value as 'IELTS' | 'TOEIC')} className="rounded-lg border border-gray-300 bg-white px-3 py-2">
+                <option value="IELTS">IELTS</option>
+                <option value="TOEIC">TOEIC</option>
+              </select>
+              <input value={uploadSeries} onChange={(event) => setUploadSeries(event.target.value)} placeholder="Series (e.g. IELTS Cambridge)" className="rounded-lg border border-gray-300 bg-white px-3 py-2" />
+            </div>
+            <button onClick={uploadDocument} disabled={uploading} className="mt-3 rounded-lg bg-blue-600 px-4 py-2 font-semibold text-white disabled:cursor-not-allowed disabled:bg-blue-300">
+              {uploading ? 'Uploading to S3...' : 'Upload PDF'}
+            </button>
+          </section>
+        )}
+
         <div className="mb-6 flex gap-2 border-b border-gray-200">
-          {Object.keys(DOCUMENT_CATALOG).map((category) => (
+          {Object.keys(catalog).map((category) => (
             <button key={category} onClick={() => { setActiveCategory(category); setActiveSeries(null); }} className={`border-b-2 px-4 py-3 font-semibold transition ${activeCategory === category ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-600'}`}>
               {category}
             </button>
           ))}
         </div>
 
-        {activeSeries ? (
+        {loading ? (
+          <p className="rounded-lg bg-gray-50 p-8 text-center text-gray-500">Dang tai tai lieu...</p>
+        ) : error ? (
+          <p className="rounded-lg bg-red-50 p-8 text-center text-red-600">{error}</p>
+        ) : activeSeries ? (
           <section>
             <button onClick={() => setActiveSeries(null)} className="mb-4 flex items-center gap-1 text-sm font-semibold text-blue-600"><ChevronLeft className="h-4 w-4" />{activeCategory}</button>
             <h2 className="mb-4 text-2xl font-bold text-gray-900">{activeSeries}</h2>
@@ -110,4 +186,3 @@ export default function DocumentPage() {
     </div>
   );
 }
-///
