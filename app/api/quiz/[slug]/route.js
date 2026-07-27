@@ -35,7 +35,7 @@ exports.GET = async (request, context) => {
     const { slug } = context.params;
     const db = await connectDB(process.env.MONGODB_URI, "words");
     const QuizTopic = getQuizTopicModel(db);
-    const topic = await QuizTopic.findOne({ slug: String(slug).toLowerCase() }).lean();
+    const topic = await QuizTopic.findOne({ slug: String(slug).toLowerCase() });
 
     if (!topic) {
       return errorResponse("Quiz topic not found", 404);
@@ -74,8 +74,8 @@ exports.PATCH = async (request, context) => {
     const QuizTopic = getQuizTopicModel(db);
     const updated = await QuizTopic.findOneAndUpdate(
       { slug: String(slug).toLowerCase() },
-      updates,
-      { new: true },
+      { $set: { ...updates, updatedAt: new Date() } },
+      { returnDocument: "after" },
     );
 
     if (!updated) {
@@ -96,9 +96,9 @@ exports.DELETE = async (request, context) => {
     const { slug } = context.params;
     const db = await connectDB(process.env.MONGODB_URI, "words");
     const QuizTopic = getQuizTopicModel(db);
-    const deleted = await QuizTopic.findOneAndDelete({ slug: String(slug).toLowerCase() });
+    const deleted = await QuizTopic.deleteOne({ slug: String(slug).toLowerCase() });
 
-    if (!deleted) {
+    if (deleted.deletedCount === 0) {
       return errorResponse("Quiz topic not found", 404);
     }
 

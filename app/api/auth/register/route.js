@@ -26,7 +26,7 @@ exports.POST = async (request) => {
   try {
     const db = await connectDB(process.env.MONGODB_URI, "users");
     const User = getUserModel(db);
-    console.log("[auth.register] db:", db.name, "collection:", User.collection.name);
+    console.log("[auth.register] db:", db.databaseName, "collection:", User.collectionName);
     const { username, email, password } = await request.json();
 
     if (!username || !email || !password) {
@@ -51,7 +51,7 @@ exports.POST = async (request) => {
     const verificationToken = crypto.randomBytes(32).toString("hex");
     const verificationTokenExpiry = new Date(Date.now() + 24 * 60 * 60 * 1000);
 
-    const newUser = await User.create({
+    const result = await User.insertOne({
       username,
       email,
       password: hashedPassword,
@@ -60,6 +60,14 @@ exports.POST = async (request) => {
       verificationToken,
       verificationTokenExpiry,
     });
+
+    const newUser = {
+      _id: result.insertedId,
+      username,
+      email,
+      role: isAdminEmail(email) ? "admin" : "user",
+      isVerified: false,
+    };
 
     const emailSent = await sendVerificationEmail(email, verificationToken, username);
 

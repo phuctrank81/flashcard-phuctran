@@ -24,7 +24,7 @@ exports.POST = async (request) => {
   try {
     const db = await connectDB(process.env.MONGODB_URI, "users");
     const User = getUserModel(db);
-    console.log("[auth.login] db:", db.name, "collection:", User.collection.name);
+    console.log("[auth.login] db:", db.databaseName, "collection:", User.collectionName);
     const { email, password } = await request.json();
 
     if (!email || !password) {
@@ -42,8 +42,8 @@ exports.POST = async (request) => {
     }
 
     if (isAdminEmail(user.email) && user.role !== "admin") {
+      await User.updateOne({ _id: user._id }, { $set: { role: "admin" } });
       user.role = "admin";
-      await user.save();
     }
 
     return jsonResponse({

@@ -15,7 +15,7 @@ exports.POST = async (request) => {
   try {
     const db = await connectDB(process.env.MONGODB_URI, "users");
     const User = getUserModel(db);
-    console.log("[auth.verify] db:", db.name, "collection:", User.collection.name);
+    console.log("[auth.verify] db:", db.databaseName, "collection:", User.collectionName);
     const { token } = await request.json();
 
     if (!token) {
@@ -34,10 +34,20 @@ exports.POST = async (request) => {
       );
     }
 
+    await User.updateOne(
+      { _id: user._id },
+      {
+        $set: {
+          isVerified: true,
+          verificationToken: null,
+          verificationTokenExpiry: null,
+        },
+      },
+    );
+
     user.isVerified = true;
     user.verificationToken = null;
     user.verificationTokenExpiry = null;
-    await user.save();
 
     return jsonResponse({
       message: "Email đã được xác thực thành công!",

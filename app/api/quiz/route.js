@@ -49,10 +49,10 @@ exports.GET = async () => {
   try {
     const db = await connectDB(process.env.MONGODB_URI, "words");
     const QuizTopic = getQuizTopicModel(db);
-    const topics = await QuizTopic.find()
+    const topics = await QuizTopic.find({})
+      .project({ slug: 1, title: 1, description: 1, questions: 1, createdAt: 1 })
       .sort({ createdAt: 1 })
-      .select("slug title description questions")
-      .lean();
+      .toArray();
 
     const mapped = topics.map((topic) => ({
       slug: topic.slug,
@@ -84,14 +84,16 @@ exports.POST = async (request) => {
     const errorMessage = validatePayload({ slug, title, questions });
     if (errorMessage) return errorResponse(errorMessage, 400);
 
-    const created = await QuizTopic.create({
+    const result = await QuizTopic.insertOne({
       slug,
       title,
       description,
       questions,
+      createdAt: new Date(),
+      updatedAt: new Date(),
     });
 
-    return jsonResponse(created, { status: 201 });
+    return jsonResponse({ _id: result.insertedId, slug, title, description, questions }, { status: 201 });
   } catch (error) {
     if (error.code === 11000) {
       return errorResponse("Quiz slug already exists", 409);

@@ -16,9 +16,9 @@ exports.GET = async () => {
   try {
     const db = await connectDB(process.env.MONGODB_URI, "words");
     const Words = getWordsModel(db);
-    const flashcards = await Words.find()
-      .select("word definition example")
-      .lean();
+    const flashcards = await Words.find({})
+      .project({ word: 1, definition: 1, example: 1 })
+      .toArray();
     return jsonResponse(flashcards);
   } catch (error) {
     return errorResponse("Server error", 500, error.message);
@@ -38,13 +38,13 @@ exports.POST = async (request) => {
       return errorResponse("Missing fields", 400);
     }
 
-    const vocab = await Words.create({
+    const result = await Words.insertOne({
       word,
       definition,
       example,
     });
 
-    return jsonResponse(vocab, { status: 201 });
+    return jsonResponse({ _id: result.insertedId, word, definition, example }, { status: 201 });
   } catch (error) {
     return errorResponse("Create vocab failed", 500, error.message);
   }

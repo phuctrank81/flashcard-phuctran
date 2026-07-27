@@ -1,4 +1,5 @@
 const { NextResponse } = require("next/server");
+const { ObjectId } = require("mongodb");
 const connectDB = require("../../../../lib/mongodb");
 const { getWordsModel } = require("../../../../lib/models/words");
 const { requireAdmin } = require("../../../../lib/adminAuth");
@@ -17,7 +18,7 @@ exports.GET = async (request, context) => {
     const db = await connectDB(process.env.MONGODB_URI, "words");
     const Words = getWordsModel(db);
     const { id } = context.params;
-    const flashcard = await Words.findById(id);
+    const flashcard = await Words.findOne({ _id: new ObjectId(id) });
 
     if (!flashcard) {
       return errorResponse("Word not found", 404);
@@ -39,7 +40,12 @@ exports.PATCH = async (request, context) => {
     const { id } = context.params;
     const updates = await request.json();
 
-    const vocab = await Words.findByIdAndUpdate(id, updates, { new: true });
+    const result = await Words.findOneAndUpdate(
+      { _id: new ObjectId(id) },
+      { $set: updates },
+      { returnDocument: "after" },
+    );
+    const vocab = result.value;
     if (!vocab) {
       return errorResponse("Vocab not found", 404);
     }
@@ -59,7 +65,8 @@ exports.DELETE = async (request, context) => {
     const Words = getWordsModel(db);
     const { id } = context.params;
 
-    const vocab = await Words.findByIdAndDelete(id);
+    const result = await Words.deleteOne({ _id: new ObjectId(id) });
+    const vocab = result.deletedCount > 0;
     if (!vocab) {
       return errorResponse("Vocab not found", 404);
     }
