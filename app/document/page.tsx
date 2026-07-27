@@ -18,11 +18,37 @@ type CurrentUser = {
   role?: string;
 };
 
+const getDefaultCatalog = (): DocumentCatalog => ({
+  IELTS: {
+    'IELTS Cambridge': [
+      {
+        id: 'local-ielts-cambridge',
+        name: 'IELTS Cambridge 14',
+        downloadUrl: '/documents/ielts/cambridge/ielts-cambridge-14.pdf',
+      },
+    ],
+  },
+  TOEIC: {},
+});
+
+const mergeCatalog = (currentCatalog: DocumentCatalog, incomingCatalog: DocumentCatalog): DocumentCatalog => {
+  const nextCatalog: DocumentCatalog = { ...currentCatalog };
+
+  Object.entries(incomingCatalog).forEach(([category, seriesGroups]) => {
+    nextCatalog[category] = {
+      ...(nextCatalog[category] || {}),
+      ...(seriesGroups || {}),
+    };
+  });
+
+  return nextCatalog;
+};
+
 export default function DocumentPage() {
-  const [activeCategory, setActiveCategory] = useState('IELTS');
-  const [activeSeries, setActiveSeries] = useState<string | null>(null);
+  const [activeCategory, setActiveCategory] = useState<'IELTS' | 'TOEIC'>('IELTS');
+  const [activeSeries, setActiveSeries] = useState<string | null>('IELTS Cambridge');
   const [previewDoc, setPreviewDoc] = useState<DocumentFile | null>(null);
-  const [catalog, setCatalog] = useState<DocumentCatalog>({ IELTS: {}, TOEIC: {} });
+  const [catalog, setCatalog] = useState<DocumentCatalog>(getDefaultCatalog());
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [currentUser, setCurrentUser] = useState<CurrentUser | null>(null);
@@ -37,7 +63,7 @@ export default function DocumentPage() {
         const response = await fetch('/api/document');
         const data = await response.json();
         if (!response.ok || !data.success) throw new Error(data.error || 'Could not load documents');
-        setCatalog({ IELTS: {}, TOEIC: {}, ...data.files });
+        setCatalog((currentCatalog) => mergeCatalog(currentCatalog, data.files || {}));
       } catch (error) {
         setError(error instanceof Error ? error.message : 'Could not load documents');
       } finally {
@@ -85,7 +111,7 @@ export default function DocumentPage() {
       const listResponse = await fetch('/api/document');
       const listData = await listResponse.json();
       if (!listResponse.ok || !listData.success) throw new Error(listData.error || 'Could not refresh documents');
-      setCatalog({ IELTS: {}, TOEIC: {}, ...listData.files });
+      setCatalog((currentCatalog) => mergeCatalog(currentCatalog, listData.files || {}));
     } catch (error) {
       setError(error instanceof Error ? error.message : 'Could not upload document');
     } finally {
@@ -100,6 +126,13 @@ export default function DocumentPage() {
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
+
+  const handleCategoryChange = (category: 'IELTS' | 'TOEIC') => {
+    setActiveCategory(category);
+    const categoryGroups = catalog[category] || {};
+    const preferredSeries = category === 'IELTS' && categoryGroups['IELTS Cambridge'] ? 'IELTS Cambridge' : Object.keys(categoryGroups)[0] || null;
+    setActiveSeries(preferredSeries);
+  };
 
   const seriesGroups = catalog[activeCategory] || {};
   const seriesNames = Object.keys(seriesGroups);
@@ -148,15 +181,15 @@ export default function DocumentPage() {
 
         <div className="mb-6 flex gap-2 border-b border-gray-200">
           {Object.keys(catalog).map((category) => (
-            <button key={category} onClick={() => { setActiveCategory(category); setActiveSeries(null); }} className={`border-b-2 px-4 py-3 font-semibold transition ${activeCategory === category ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-600'}`}>
+            <button key={category} onClick={() => handleCategoryChange(category as 'IELTS' | 'TOEIC')} className={`border-b-2 px-4 py-3 font-semibold transition ${activeCategory === category ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-600'}`}>
               {category}
             </button>
           ))}
         </div>
 
-        {loading ? (
-          <p className="rounded-lg bg-gray-50 p-8 text-center text-gray-500">Dang tai tai lieu...</p>
-        ) : error ? (
+        {loading && !seriesNames.length && !currentDocs.length ? (
+          <p className="rounded-lg bg-gray-50 p-8 text-center text-gray-500">Đang tải tài liệu...</p>
+        ) : error && !seriesNames.length && !currentDocs.length ? (
           <p className="rounded-lg bg-red-50 p-8 text-center text-red-600">{error}</p>
         ) : activeSeries ? (
           <section>
