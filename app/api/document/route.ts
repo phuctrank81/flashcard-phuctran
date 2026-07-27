@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { DeleteObjectCommand, ListObjectsV2Command, PutObjectCommand } from '@aws-sdk/client-s3';
 import { randomUUID } from 'crypto';
 import { requireAdmin } from '@/lib/adminAuth';
-import { s3, s3Bucket } from '@/lib/s3';
+import { getAwsS3ConfigError, s3, s3Bucket } from '@/lib/s3';
 
 type DocumentGroup = Record<string, Record<string, unknown[]>>;
 
@@ -20,6 +20,11 @@ function getDocumentDetails(key: string) {
 // Lấy danh sách PDF trực tiếp từ bucket S3.
 export async function GET() {
   try {
+    const awsConfigError = getAwsS3ConfigError();
+    if (awsConfigError) {
+      return NextResponse.json({ success: false, error: awsConfigError }, { status: 500 });
+    }
+
     const result = await s3.send(new ListObjectsV2Command({ Bucket: s3Bucket }));
     const groupedFiles: DocumentGroup = {};
 
@@ -42,7 +47,8 @@ export async function GET() {
     return NextResponse.json({ success: true, files: groupedFiles, categories: Object.keys(groupedFiles) });
   } catch (error) {
     console.error('Error listing S3 files:', error);
-    return NextResponse.json({ success: false, error: 'Không thể lấy danh sách file từ S3' }, { status: 500 });
+    const message = error instanceof Error ? error.message : 'Không thể lấy danh sách file từ S3';
+    return NextResponse.json({ success: false, error: message }, { status: 500 });
   }
 }
 
@@ -51,6 +57,11 @@ export async function POST(request: NextRequest) {
   try {
     const adminCheck = await requireAdmin(request);
     if (!adminCheck.ok) return adminCheck.response;
+
+    const awsConfigError = getAwsS3ConfigError();
+    if (awsConfigError) {
+      return NextResponse.json({ success: false, error: awsConfigError }, { status: 500 });
+    }
 
     const formData = await request.formData();
     const file = formData.get('file');
@@ -77,7 +88,8 @@ export async function POST(request: NextRequest) {
     }, { status: 201 });
   } catch (error) {
     console.error('Error uploading file:', error);
-    return NextResponse.json({ success: false, error: 'Lỗi khi tải file lên S3' }, { status: 500 });
+    const message = error instanceof Error ? error.message : 'Lỗi khi tải file lên S3';
+    return NextResponse.json({ success: false, error: message }, { status: 500 });
   }
 }
 
@@ -87,6 +99,11 @@ export async function DELETE(request: NextRequest) {
     const adminCheck = await requireAdmin(request);
     if (!adminCheck.ok) return adminCheck.response;
 
+    const awsConfigError = getAwsS3ConfigError();
+    if (awsConfigError) {
+      return NextResponse.json({ success: false, error: awsConfigError }, { status: 500 });
+    }
+
     const key = request.nextUrl.searchParams.get('key');
     if (!key) return NextResponse.json({ success: false, error: 'Thiếu S3 object key' }, { status: 400 });
 
@@ -94,6 +111,7 @@ export async function DELETE(request: NextRequest) {
     return NextResponse.json({ success: true, message: 'Xóa file thành công' });
   } catch (error) {
     console.error('Error deleting file:', error);
-    return NextResponse.json({ success: false, error: 'Lỗi khi xóa file' }, { status: 500 });
+    const message = error instanceof Error ? error.message : 'Lỗi khi xóa file';
+    return NextResponse.json({ success: false, error: message }, { status: 500 });
   }
 }
