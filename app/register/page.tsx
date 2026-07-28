@@ -17,7 +17,8 @@
     const [error, setError] = useState<string | null>(null);
     const [success, setSuccess] = useState<string | null>(null);
 
-    const handleRegister = async () => {
+    const handleRegister = async (event?: React.FormEvent) => {
+      event?.preventDefault();
       setError(null);
       setSuccess(null);
 
@@ -68,7 +69,8 @@
           }),
         });
 
-        const data = await res.json();
+        const responseText = await res.text();
+        const data = responseText ? JSON.parse(responseText) : {};
 
         if (!res.ok) {
           throw new Error(data.message || "Đăng ký thất bại");
@@ -87,8 +89,9 @@
           router.push("/login");
         }, 1500);
 
-      } catch (err: any) {
-        setError(err.message || "Có lỗi xảy ra, vui lòng thử lại");
+      } catch (err: unknown) {
+        const message = err instanceof Error ? err.message : "Có lỗi xảy ra, vui lòng thử lại";
+        setError(message);
       } finally {
         setLoading(false);
       }
@@ -123,7 +126,7 @@
               </div>
             )}
 
-            <div className="space-y-4">
+            <form onSubmit={(e) => handleRegister(e)} className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1">
                   Tên người dùng
@@ -183,12 +186,11 @@
                   className="w-full border border-slate-300 p-3 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none disabled:bg-slate-100 disabled:cursor-not-allowed"
                 />
               </div>
-            </div>
 
             <button
-              onClick={handleRegister}
+              type="submit"
               disabled={loading}
-              className="w-full mt-6 bg-indigo-600 text-white py-3 rounded-lg font-semibold disabled:opacity-50 disabled:cursor-not-allowed hover:bg-indigo-700 active:bg-indigo-800 transition-colors"
+              className="w-full mt-6 bg-indigo-600 text-white py-3 rounded-lg font-semibold disabled:opacity-50 disabled:cursor-not-allowed hover:bg-indigo-700 active:bg-indigo-700 transition-colors"
             >
               {loading ? (
                 <span className="flex items-center justify-center gap-2">
@@ -202,6 +204,8 @@
                 "Đăng ký"
               )}
             </button>
+
+            </form>
 
             <p className="text-center text-sm text-slate-600 mt-6">
               Đã có tài khoản?{" "}
