@@ -92,7 +92,7 @@ export async function POST(req: NextRequest) {
       req.nextUrl.origin ||
       "http://localhost:3000";
     const verificationUrl = `${baseUrl}/verify-email?token=${verificationToken}`;
-    const emailSent = await sendVerificationEmail(
+    const emailResult = await sendVerificationEmail(
       normalizedEmail,
       verificationToken,
       String(username).trim(),
@@ -106,11 +106,12 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json(
       {
-        message: emailSent
+        message: emailResult?.success
           ? "Đăng ký thành công. Vui lòng kiểm tra email để xác nhận tài khoản."
-          : "Đăng ký thành công nhưng gửi email xác nhận thất bại. Vui lòng liên hệ hỗ trợ.",
+          : `Đăng ký thành công nhưng không thể gửi email xác nhận. ${emailResult?.error || "Vui lòng kiểm tra cấu hình Gmail."}`,
         user: safeUser,
         needsVerification: true,
+        emailError: emailResult?.success ? null : emailResult?.error || null,
       },
       { status: 201 }
     );
