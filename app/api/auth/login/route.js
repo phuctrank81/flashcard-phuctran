@@ -62,6 +62,10 @@ exports.POST = async (request) => {
       return errorResponse("Sai email hoặc mật khẩu", 401);
     }
 
+    if (user.isVerified === false) {
+      return errorResponse("Vui lòng xác nhận email trước khi đăng nhập", 403);
+    }
+
     return jsonResponse({
       message: "Đăng nhập thành công",
       user: {

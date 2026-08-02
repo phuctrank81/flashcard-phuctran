@@ -8,6 +8,8 @@ import {
 import bcrypt from "bcryptjs";
 import { randomUUID } from "crypto";
 
+const { sendVerificationEmail } = require("../../../../lib/emailService");
+
 const client = new DynamoDBClient({
   region: process.env.AWS_REGION || "ap-southeast-2",
   credentials:
@@ -29,7 +31,6 @@ export async function POST(req: NextRequest) {
   try {
     const { username, email, password } = await req.json();
 
-    // Validate lại ở backend
     if (!username || !email || !password) {
       return NextResponse.json(
         { message: "Thiếu thông tin đăng ký" },
@@ -44,12 +45,13 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Kiểm tra email đã tồn tại chưa
+    const normalizedEmail = String(email).trim().toLowerCase();
+
     const existing = await ddb.send(
       new ScanCommand({
         TableName: TABLE_NAME,
         FilterExpression: "email = :email",
-        ExpressionAttributeValues: { ":email": email },
+        ExpressionAttributeValues: { ":email": normalizedEmail },
       })
     );
 
@@ -60,15 +62,21 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Hash password trước khi lưu — không bao giờ lưu plain text
     const hashedPassword = await bcrypt.hash(password, 10);
+    const verificationToken = randomUUID();
+    const verificationTokenExpiry = new Date(
+      Date.now() + 24 * 60 * 60 * 1000
+    ).toISOString();
 
     const user = {
       user_id: randomUUID(),
-      username,
-      email,
+      username: String(username).trim(),
+      email: normalizedEmail,
       password: hashedPassword,
       createdAt: new Date().toISOString(),
+      isVerified: false,
+      verificationToken,
+      verificationTokenExpiry,
     };
 
     await ddb.send(
@@ -79,14 +87,31 @@ export async function POST(req: NextRequest) {
       })
     );
 
-    // Không trả password về client
+    const baseUrl =
+      process.env.NEXT_PUBLIC_FRONTEND_URL ||
+      req.nextUrl.origin ||
+      "http://localhost:3000";
+    const verificationUrl = `${baseUrl}/verify-email?token=${verificationToken}`;
+    const emailSent = await sendVerificationEmail(
+      normalizedEmail,
+      verificationToken,
+      String(username).trim(),
+      verificationUrl
+    );
+
     const userWithoutPassword = { ...user };
     const safeUser = Object.fromEntries(
       Object.entries(userWithoutPassword).filter(([key]) => key !== "password")
     );
 
     return NextResponse.json(
-      { message: "Đăng ký thành công", user: safeUser },
+      {
+        message: emailSent
+          ? "Đăng ký thành công. Vui lòng kiểm tra email để xác nhận tài khoản."
+          : "Đăng ký thành công nhưng gửi email xác nhận thất bại. Vui lòng liên hệ hỗ trợ.",
+        user: safeUser,
+        needsVerification: true,
+      },
       { status: 201 }
     );
   } catch (err: unknown) {
@@ -96,7 +121,6 @@ export async function POST(req: NextRequest) {
     console.error("[Register Error] Stack:", stack);
     console.error("[Register Error] Full error:", err);
 
-    // Phân loại lỗi để trả về thông báo hữu ích
     let userMessage = "Có lỗi xảy ra khi đăng ký";
     if (
       message.includes("Unable to connect") ||

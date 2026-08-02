@@ -2,12 +2,9 @@
 
   import { useState } from "react";
   import Link from "next/link";
-  import { useRouter } from "next/navigation"; 
   import Header from "@/components/header";
 
   export default function RegisterPage() {
-    const router = useRouter();
-    
     const [username, setUsername] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
@@ -76,18 +73,13 @@
           throw new Error(data.message || "Đăng ký thất bại");
         }
 
-        setSuccess("Đăng ký thành công! Đang chuyển hướng...");
-        
+        setSuccess("Đăng ký thành công! Vui lòng kiểm tra email và xác nhận tài khoản trước khi đăng nhập.");
+
         // ✅ Clear form
         setUsername("");
         setEmail("");
         setPassword("");
         setConfirmPassword("");
-
-        // ✅ Redirect sau 1.5s
-        setTimeout(() => {
-          router.push("/login");
-        }, 1500);
 
       } catch (err: unknown) {
         const message = err instanceof Error ? err.message : "Có lỗi xảy ra, vui lòng thử lại";
