@@ -98,6 +98,7 @@ export async function POST(req: NextRequest) {
       String(username).trim(),
       verificationUrl
     );
+    console.log('[register] emailResult:', emailResult);
 
     const userWithoutPassword = { ...user };
     const safeUser = Object.fromEntries(

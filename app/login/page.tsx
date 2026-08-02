@@ -13,9 +13,14 @@ export default function LoginPage() {
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showResend, setShowResend] = useState(false);
+  const [resendLoading, setResendLoading] = useState(false);
+  const [resendMessage, setResendMessage] = useState<string | null>(null);
 
   const handleLogin = async () => {
     setError(null);
+    setShowResend(false);
+    setResendMessage(null);
 
     if (!email.trim() || !password) {
       setError("Vui lòng nhập đầy đủ email và mật khẩu");
@@ -41,7 +46,12 @@ export default function LoginPage() {
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data.message || "Đăng nhập thất bại");
+        const msg = data?.message || "Đăng nhập thất bại";
+        setError(msg);
+        if (res.status === 403 && String(msg).toLowerCase().includes("xác nhận")) {
+          setShowResend(true);
+        }
+        return;
       }
 
       // ✅ (Tuỳ backend) Lưu token
@@ -56,10 +66,40 @@ export default function LoginPage() {
       // ✅ Redirect vào trang chính
       router.push("/"); // hoặc "/dashboard"
 
-    } catch (err: any) {
-      setError(err.message || "Có lỗi xảy ra");
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : String(err);
+      setError(message || "Có lỗi xảy ra");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleResend = async () => {
+    setResendMessage(null);
+    if (!email.trim()) {
+      setResendMessage("Vui lòng nhập email để gửi lại xác nhận");
+      return;
+    }
+
+    try {
+      setResendLoading(true);
+      const API_URL = process.env.NEXT_PUBLIC_API_URL || "";
+      const res = await fetch(`${API_URL}/api/auth/resend-verification`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: email.trim().toLowerCase() }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setResendMessage(data?.message || data?.emailError || "Không gửi được email");
+      } else {
+        setResendMessage(data?.message || "Đã gửi lại email xác nhận. Vui lòng kiểm tra hộp thư.");
+      }
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : String(err);
+      setResendMessage(message || "Lỗi gửi lại email");
+    } finally {
+      setResendLoading(false);
     }
   };
 
@@ -84,6 +124,21 @@ export default function LoginPage() {
           {error && (
             <div className="mb-4 p-3 text-sm bg-red-50 text-red-600 rounded-lg border border-red-200">
               {error}
+            </div>
+          )}
+
+          {showResend && (
+            <div className="mb-4">
+              <button
+                onClick={handleResend}
+                disabled={resendLoading}
+                className="w-full bg-white border border-indigo-600 text-indigo-600 py-2 rounded-lg font-semibold hover:bg-indigo-50 transition-colors"
+              >
+                {resendLoading ? "Đang gửi lại..." : "Gửi lại email xác nhận"}
+              </button>
+              {resendMessage && (
+                <div className="mt-2 text-sm text-slate-700">{resendMessage}</div>
+              )}
             </div>
           )}
 
