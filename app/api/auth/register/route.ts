@@ -8,8 +8,6 @@ import {
 import bcrypt from "bcryptjs";
 import { randomUUID } from "crypto";
 
-const { sendVerificationEmail } = require("../../../../lib/emailService");
-
 const client = new DynamoDBClient({
   region: process.env.AWS_REGION || "ap-southeast-2",
   credentials:
@@ -63,10 +61,6 @@ export async function POST(req: NextRequest) {
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
-    const verificationToken = randomUUID();
-    const verificationTokenExpiry = new Date(
-      Date.now() + 24 * 60 * 60 * 1000
-    ).toISOString();
 
     const user = {
       user_id: randomUUID(),
@@ -74,9 +68,7 @@ export async function POST(req: NextRequest) {
       email: normalizedEmail,
       password: hashedPassword,
       createdAt: new Date().toISOString(),
-      isVerified: false,
-      verificationToken,
-      verificationTokenExpiry,
+      isVerified: true,
     };
 
     await ddb.send(
@@ -87,19 +79,6 @@ export async function POST(req: NextRequest) {
       })
     );
 
-    const baseUrl =
-      process.env.NEXT_PUBLIC_FRONTEND_URL ||
-      req.nextUrl.origin ||
-      "http://localhost:3000";
-    const verificationUrl = `${baseUrl}/verify-email?token=${verificationToken}`;
-    const emailResult = await sendVerificationEmail(
-      normalizedEmail,
-      verificationToken,
-      String(username).trim(),
-      verificationUrl
-    );
-    console.log('[register] emailResult:', emailResult);
-
     const userWithoutPassword = { ...user };
     const safeUser = Object.fromEntries(
       Object.entries(userWithoutPassword).filter(([key]) => key !== "password")
@@ -107,12 +86,8 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json(
       {
-        message: emailResult?.success
-          ? "Đăng ký thành công. Vui lòng kiểm tra email để xác nhận tài khoản."
-          : `Đăng ký thành công nhưng không thể gửi email xác nhận. ${emailResult?.error || "Vui lòng kiểm tra cấu hình Gmail."}`,
+        message: "Đăng ký thành công. Bạn có thể đăng nhập ngay bây giờ.",
         user: safeUser,
-        needsVerification: true,
-        emailError: emailResult?.success ? null : emailResult?.error || null,
       },
       { status: 201 }
     );

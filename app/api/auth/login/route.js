@@ -1,7 +1,7 @@
-﻿const { NextResponse } = require("next/server");
-const bcrypt = require("bcryptjs");
-const { DynamoDBClient } = require("@aws-sdk/client-dynamodb");
-const { DynamoDBDocumentClient, ScanCommand } = require("@aws-sdk/lib-dynamodb");
+﻿import { NextResponse } from "next/server";
+import bcrypt from "bcryptjs";
+import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
+import { DynamoDBDocumentClient, ScanCommand } from "@aws-sdk/lib-dynamodb";
 
 const client = new DynamoDBClient({
   region: process.env.AWS_REGION || "ap-southeast-2",
@@ -20,16 +20,12 @@ const client = new DynamoDBClient({
 const ddb = DynamoDBDocumentClient.from(client);
 const TABLE_NAME = process.env.DYNAMODB_USER_TABLE || "Users";
 
-const jsonResponse = (data, init = {}) =>
-  NextResponse.json(data, init);
+const jsonResponse = (data, init = {}) => NextResponse.json(data, init);
 
 const errorResponse = (message, status = 500, error) =>
-  jsonResponse(
-    { message, ...(error ? { error } : {}) },
-    { status }
-  );
+  jsonResponse({ message, ...(error ? { error } : {}) }, { status });
 
-exports.POST = async (request) => {
+export async function POST(request) {
   try {
     const { email, password } = await request.json();
 
@@ -49,9 +45,10 @@ exports.POST = async (request) => {
       })
     );
 
-    const user = result.Items && result.Items.length > 0
-      ? result.Items.find((item) => String(item.email || "").toLowerCase() === normalizedEmail)
-      : null;
+    const user =
+      result.Items && result.Items.length > 0
+        ? result.Items.find((item) => String(item.email || "").toLowerCase() === normalizedEmail)
+        : null;
 
     if (!user) {
       return errorResponse("Sai email hoặc mật khẩu", 401);
@@ -60,10 +57,6 @@ exports.POST = async (request) => {
     const isMatch = await bcrypt.compare(password, user.password || "");
     if (!isMatch) {
       return errorResponse("Sai email hoặc mật khẩu", 401);
-    }
-
-    if (user.isVerified === false) {
-      return errorResponse("Vui lòng xác nhận email trước khi đăng nhập", 403);
     }
 
     return jsonResponse({
@@ -80,4 +73,6 @@ exports.POST = async (request) => {
     console.error("[auth.login]", message);
     return errorResponse("Lỗi server", 500, message);
   }
-};
+}
+
+export const runtime = "nodejs";
