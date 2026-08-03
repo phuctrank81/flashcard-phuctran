@@ -1,9 +1,9 @@
 'use client';
 
-import Header from '@/components/header';
-import Footer from '@/components/footer';
 import { ChevronLeft, Download, Eye, ExternalLink, FileText, FolderOpen, X } from 'lucide-react';
 import { useEffect, useState } from 'react';
+import Header from "@/components/header";
+import Footer from "@/components/footer";
 
 type DocumentFile = {
   id: string;
@@ -46,9 +46,12 @@ const mergeCatalog = (currentCatalog: DocumentCatalog, incomingCatalog: Document
 
 export default function DocumentPage() {
   const [activeCategory, setActiveCategory] = useState<'IELTS' | 'TOEIC'>('IELTS');
-  const [activeSeries, setActiveSeries] = useState<string | null>('IELTS Cambridge');
+  // ✅ Mở trang luôn hiện lưới folder trước, không tự chọn series nào
+  const [activeSeries, setActiveSeries] = useState<string | null>(null);
   const [previewDoc, setPreviewDoc] = useState<DocumentFile | null>(null);
-  const [catalog, setCatalog] = useState<DocumentCatalog>(getDefaultCatalog());
+  // ✅ Khởi tạo rỗng thay vì getDefaultCatalog() ngay — tránh hiện 1 tài liệu trước
+  // rồi các tài liệu còn lại "bật ra" sau khi fetch xong (2 lần render khác nhau).
+  const [catalog, setCatalog] = useState<DocumentCatalog>({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [currentUser, setCurrentUser] = useState<CurrentUser | null>(null);
@@ -63,9 +66,12 @@ export default function DocumentPage() {
         const response = await fetch('/api/document');
         const data = await response.json();
         if (!response.ok || !data.success) throw new Error(data.error || 'Could not load documents');
-        setCatalog((currentCatalog) => mergeCatalog(currentCatalog, data.files || {}));
+        // ✅ Gộp default + dữ liệu fetch trong 1 lần set duy nhất, sau khi đã có đủ dữ liệu
+        setCatalog(mergeCatalog(getDefaultCatalog(), data.files || {}));
       } catch (error) {
         setError(error instanceof Error ? error.message : 'Could not load documents');
+        // Fetch lỗi thì vẫn hiện được tài liệu mặc định thay vì trống trơn
+        setCatalog(getDefaultCatalog());
       } finally {
         setLoading(false);
       }
@@ -127,11 +133,10 @@ export default function DocumentPage() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
+  // ✅ Đổi category chỉ đổi tab, không tự động mở series nào — luôn quay về lưới folder
   const handleCategoryChange = (category: 'IELTS' | 'TOEIC') => {
     setActiveCategory(category);
-    const categoryGroups = catalog[category] || {};
-    const preferredSeries = category === 'IELTS' && categoryGroups['IELTS Cambridge'] ? 'IELTS Cambridge' : Object.keys(categoryGroups)[0] || null;
-    setActiveSeries(preferredSeries);
+    setActiveSeries(null);
   };
 
   const seriesGroups = catalog[activeCategory] || {};
@@ -141,7 +146,6 @@ export default function DocumentPage() {
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
-
       {previewDoc && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4" onClick={(event) => event.target === event.currentTarget && setPreviewDoc(null)}>
           <div className="flex h-[90vh] w-full max-w-5xl flex-col rounded-2xl bg-white shadow-2xl">
@@ -181,7 +185,7 @@ export default function DocumentPage() {
 
         <div className="mb-6 flex gap-2 border-b border-gray-200">
           {Object.keys(catalog).map((category) => (
-            <button key={category} onClick={() => handleCategoryChange(category as 'IELTS' | 'TOEIC')} className={`border-b-2 px-4 py-3 font-semibold transition ${activeCategory === category ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-600'}`}>
+            <button key={category} onClick={() => handleCategoryChange(category as 'IELTS' | 'TOEIC')} className={`border-b-2 px-4 py-3 font-semibold transition ${activeCategory === category ? 'border-indigo-500 text-indigo-600' : 'border-transparent text-gray-600'}`}>
               {category}
             </button>
           ))}
